@@ -1,6 +1,7 @@
 // ===== Kopfrechnen: zufällig generierte Rechenaufgaben je Schwierigkeit =====
 import { randInt, pick } from '../core.js';
 import { simpleInputTask } from '../gameshell.js';
+import { t } from '../i18n.js';
 
 function generate(difficulty) {
   switch (difficulty) {
@@ -16,7 +17,7 @@ function generate(difficulty) {
       const op = pick(['+', '-', '×']);
       if (op === '×') {
         const a = randInt(2, 10), b = randInt(2, 10);
-        return { text: `${a} × ${b} = ?`, answer: a * b, explain: `Kleines Einmaleins: ${a} × ${b} = ${a * b}` };
+        return { text: `${a} × ${b} = ?`, answer: a * b, explain: `${t('rechnen.tables')} ${a} × ${b} = ${a * b}` };
       }
       let a = randInt(10, 100), b = randInt(10, 50);
       if (op === '-' && b > a) [a, b] = [b, a];
@@ -27,16 +28,16 @@ function generate(difficulty) {
       const type = pick(['mul', 'div', 'chain']);
       if (type === 'mul') {
         const a = randInt(11, 25), b = randInt(3, 12);
-        return { text: `${a} × ${b} = ?`, answer: a * b, explain: `Tipp: ${a} × ${b} = ${a} × ${b - 1} + ${a} = ${a * b}` };
+        return { text: `${a} × ${b} = ?`, answer: a * b, explain: `${t('rechnen.tip')} ${a} × ${b} = ${a} × ${b - 1} + ${a} = ${a * b}` };
       }
       if (type === 'div') {
         const b = randInt(3, 12), q = randInt(4, 25);
         const a = b * q;
-        return { text: `${a} ÷ ${b} = ?`, answer: q, explain: `${b} × ${q} = ${a}, also ${a} ÷ ${b} = ${q}` };
+        return { text: `${a} ÷ ${b} = ?`, answer: q, explain: `${b} × ${q} = ${a} → ${a} ÷ ${b} = ${q}` };
       }
       const a = randInt(10, 60), b = randInt(5, 30), c = randInt(2, 20);
       const result = a + b - c;
-      return { text: `${a} + ${b} − ${c} = ?`, answer: result, explain: `${a} + ${b} = ${a + b}, dann − ${c} = ${result}` };
+      return { text: `${a} + ${b} − ${c} = ?`, answer: result, explain: `${a} + ${b} = ${a + b} → − ${c} = ${result}` };
     }
     case 'schwer': {
       const type = pick(['pct', 'mul2', 'mix']);
@@ -44,7 +45,7 @@ function generate(difficulty) {
         const pct = pick([5, 10, 15, 20, 25, 50, 75]);
         const base = randInt(2, 40) * 20;
         const result = (base * pct) / 100;
-        return { text: `${pct} % von ${base} = ?`, answer: result, explain: `${base} × ${pct}/100 = ${result}` };
+        return { text: t('rechnen.pctOf', { p: pct, b: base }), answer: result, explain: `${base} × ${pct}/100 = ${result}` };
       }
       if (type === 'mul2') {
         const a = randInt(12, 40), b = randInt(12, 30);
@@ -52,7 +53,7 @@ function generate(difficulty) {
       }
       const a = randInt(3, 15), b = randInt(3, 12), c = randInt(10, 99);
       const result = a * b + c;
-      return { text: `${a} × ${b} + ${c} = ?`, answer: result, explain: `${a} × ${b} = ${a * b}, dann + ${c} = ${result}` };
+      return { text: `${a} × ${b} + ${c} = ?`, answer: result, explain: `${a} × ${b} = ${a * b} → + ${c} = ${result}` };
     }
     case 'experte':
     default: {
@@ -65,7 +66,7 @@ function generate(difficulty) {
         const pct = pick([12, 15, 17, 22, 35, 45, 65, 85]);
         const base = randInt(2, 30) * 50;
         const result = (base * pct) / 100;
-        return { text: `${pct} % von ${base} = ?`, answer: result, explain: `10 % von ${base} = ${base / 10}. Damit: ${pct} % = ${result}` };
+        return { text: t('rechnen.pctOf', { p: pct, b: base }), answer: result, explain: t('rechnen.pctTen', { b: base, t: base / 10, p: pct, r: result }) };
       }
       const a = randInt(15, 60), b = randInt(11, 30), c = randInt(2, 9), d = randInt(10, 99);
       const result = (a + b) * c - d;

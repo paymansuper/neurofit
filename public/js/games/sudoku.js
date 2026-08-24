@@ -1,6 +1,7 @@
 // ===== Sudoku: Generator mit garantiert eindeutiger Lösung =====
 // Sehr leicht: 4x4 · Leicht: 6x6 · Mittel/Schwer/Experte: 9x9 mit steigender Leere.
 import { shuffle, randInt } from '../core.js';
+import { t } from '../i18n.js';
 
 const CONFIG = {
   'sehr-leicht': { size: 4, boxW: 2, boxH: 2, remove: 6 },
@@ -76,7 +77,7 @@ function generate(difficulty) {
 
 export function renderSudoku(container, difficulty, api) {
   // Generierung kurz verzögern, damit die Ladeanzeige gerendert wird (Experte kann rechnen)
-  container.innerHTML = '<p class="task-question">⏳ Rätsel wird generiert…</p>';
+  container.innerHTML = `<p class="task-question">${t('sudoku.generating')}</p>`;
   let inner = null;
   setTimeout(() => {
     if (container.isConnected) inner = buildSudoku(container, difficulty, api);
@@ -90,8 +91,8 @@ function buildSudoku(container, difficulty, api) {
   let selected = null;
 
   container.innerHTML = `
-    <p class="task-question">Fülle das Raster: Jede Zahl von 1–${size} darf pro Zeile, Spalte und Block nur einmal vorkommen.</p>
-    <div class="sudoku-wrap"><div class="sudoku-grid size-${size}" role="grid" aria-label="Sudoku-Raster"></div></div>
+    <p class="task-question">${t('sudoku.instruction', { n: size })}</p>
+    <div class="sudoku-wrap"><div class="sudoku-grid size-${size}" role="grid" aria-label="${t('sudoku.gridAria')}"></div></div>
     <div class="numpad" id="numpad"></div>
     <div class="feedback" id="feedback"></div>
     <div id="solution-slot"></div>`;
@@ -134,7 +135,7 @@ function buildSudoku(container, difficulty, api) {
   }
   const del = document.createElement('button');
   del.textContent = '⌫';
-  del.setAttribute('aria-label', 'Löschen');
+  del.setAttribute('aria-label', t('sudoku.delete'));
   del.addEventListener('click', () => setNum(0));
   numpad.appendChild(del);
 
@@ -170,11 +171,11 @@ function buildSudoku(container, difficulty, api) {
       }
     }
     if (allOk) {
-      feedback.textContent = '✅ Perfekt gelöst!';
+      feedback.textContent = t('sudoku.perfect');
       feedback.className = 'feedback ok';
       api.finish(true);
     } else {
-      feedback.textContent = '❌ Es sind noch Fehler drin – falsche Felder sind markiert.';
+      feedback.textContent = t('sudoku.errors');
       feedback.className = 'feedback bad';
       // Fehler markieren
       let i = 0;
@@ -202,7 +203,7 @@ function buildSudoku(container, difficulty, api) {
         }
       }
       container.querySelector('#solution-slot').innerHTML =
-        `<div class="solution-box"><h4>💡 Lösung eingeblendet</h4><p>Die kursiv markierten Zahlen zeigen die richtige Lösung.</p></div>`;
+        `<div class="solution-box"><h4>${t('sudoku.solutionShown')}</h4><p>${t('sudoku.solutionText')}</p></div>`;
     },
   };
 }

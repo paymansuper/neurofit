@@ -1,13 +1,14 @@
 // ===== Farb-Wort-Test (Stroop): Klicke die FARBE, nicht das Wort! =====
 import { shuffle, pick } from '../core.js';
+import { t, L } from '../i18n.js';
 
 const COLORS = [
-  { name: 'Rot',    css: '#e04a4a' },
-  { name: 'Blau',   css: '#3b6fe0' },
-  { name: 'Grün',   css: '#2f9e55' },
-  { name: 'Gelb',   css: '#d9a514' },
-  { name: 'Lila',   css: '#9b59d0' },
-  { name: 'Orange', css: '#e07f22' },
+  { name: { de: 'Rot', en: 'Red' },       css: '#e04a4a' },
+  { name: { de: 'Blau', en: 'Blue' },     css: '#3b6fe0' },
+  { name: { de: 'Grün', en: 'Green' },    css: '#2f9e55' },
+  { name: { de: 'Gelb', en: 'Yellow' },   css: '#d9a514' },
+  { name: { de: 'Lila', en: 'Purple' },   css: '#9b59d0' },
+  { name: { de: 'Orange', en: 'Orange' }, css: '#e07f22' },
 ];
 
 const CONFIG = {
@@ -27,19 +28,17 @@ export function renderStroop(container, difficulty, api) {
   function newRound() {
     const word = pick(palette);
     let ink = pick(palette);
-    while (ink.name === word.name && palette.length > 1) ink = pick(palette);
+    while (L(ink.name) === L(word.name) && palette.length > 1) ink = pick(palette);
     const mode = cfg.tricky && Math.random() < 0.45 ? 'wort' : 'farbe';
-    const correct = mode === 'farbe' ? ink.name : word.name;
+    const correct = mode === 'farbe' ? L(ink.name) : L(word.name);
     current = { word, ink, mode, correct };
 
     container.innerHTML = `
-      <p class="task-question">${mode === 'farbe'
-        ? '🎨 Klicke die <strong>Farbe</strong>, in der das Wort geschrieben ist – nicht das Wort selbst!'
-        : '✏️ Achtung, Wechsel: Klicke, <strong>was das Wort sagt</strong> – ignoriere die Farbe!'}</p>
-      <p class="sub" style="text-align:center;color:var(--muted)">Runde ${round + 1} von ${cfg.rounds} – eine falsche Antwort beendet die Serie!</p>
-      <div class="stroop-word" style="color:${current.ink.css}">${current.word.name.toUpperCase()}</div>
+      <p class="task-question">${mode === 'farbe' ? t('stroop.clickColor') : t('stroop.clickWord')}</p>
+      <p class="sub" style="text-align:center;color:var(--muted)">${t('stroop.round', { i: round + 1, n: cfg.rounds })}</p>
+      <div class="stroop-word" style="color:${current.ink.css}">${L(current.word.name).toUpperCase()}</div>
       <div class="mc-grid">
-        ${palette.map(c => `<button class="mc-btn" data-name="${c.name}">${c.name}</button>`).join('')}
+        ${palette.map(c => `<button class="mc-btn" data-name="${L(c.name)}">${L(c.name)}</button>`).join('')}
       </div>
       <div class="feedback" id="feedback"></div>
       <div id="solution-slot"></div>`;
@@ -52,7 +51,7 @@ export function renderStroop(container, difficulty, api) {
           round++;
           if (round >= cfg.rounds) {
             b.classList.add('correct');
-            feedback.textContent = `✅ Alle ${cfg.rounds} Runden geschafft – starke Konzentration!`;
+            feedback.textContent = t('stroop.allDone', { n: cfg.rounds });
             feedback.className = 'feedback ok';
             api.finish(true);
           } else {
@@ -60,7 +59,7 @@ export function renderStroop(container, difficulty, api) {
           }
         } else {
           b.classList.add('wrong');
-          feedback.textContent = `❌ Leider falsch – richtig wäre „${current.correct}" gewesen.`;
+          feedback.textContent = t('stroop.wrongWas', { c: current.correct });
           feedback.className = 'feedback bad';
           api.finish(false);
         }
@@ -73,10 +72,9 @@ export function renderStroop(container, difficulty, api) {
   return {
     showSolution() {
       container.querySelector('#solution-slot').innerHTML = `
-        <div class="solution-box"><h4>💡 Lösung</h4>
-          <p>Die richtige Antwort war: <strong>${current.correct}</strong>.</p>
-          <p>Tipp: Sprich innerlich nur die ${current.mode === 'farbe' ? 'Farbe' : 'Bedeutung'} aus und blende den Rest bewusst aus –
-          genau dieser Konflikt trainiert deine Impulskontrolle.</p>
+        <div class="solution-box"><h4>${t('shell.solution')}</h4>
+          <p>${t('stroop.solWas', { c: current.correct })}</p>
+          <p>${current.mode === 'farbe' ? t('stroop.tipColor') : t('stroop.tipWord')}</p>
         </div>`;
     },
   };

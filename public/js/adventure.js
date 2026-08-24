@@ -4,13 +4,19 @@
 import { saveProfile, xpToRank, RANKS, CHARACTERS, pick, escapeHtml, checkAchievements } from './core.js';
 import { confetti, celebrateAchievements } from './effects.js';
 import { RENDERERS } from './renderers.js';
+import { t, L } from './i18n.js';
 
 export const WORLDS = [
-  { id: 0, name: 'Zahlenwiese',   emoji: '🌼', difficulty: 'sehr-leicht', games: ['rechnen', 'logik', 'merken', 'waage', 'memory'],  boss: 'sudoku', story: 'Auf der sonnigen Zahlenwiese beginnt deine Reise. Sammle deine ersten Sterne!' },
-  { id: 1, name: 'Wörterwald',    emoji: '🌲', difficulty: 'leicht',      games: ['worte', 'text', 'merken', 'wortgitter', 'memory'], boss: 'sudoku', story: 'Im geheimnisvollen Wörterwald verstecken sich Buchstaben zwischen den Bäumen.' },
-  { id: 2, name: 'Logik-Gebirge', emoji: '⛰️', difficulty: 'mittel',      games: ['logik', 'rechnen', 'tabellen', 'waage', 'stroop'], boss: 'sudoku', story: 'Steile Pfade, knifflige Muster – nur wer logisch denkt, erklimmt den Gipfel.' },
-  { id: 3, name: 'Datensee',      emoji: '🌊', difficulty: 'schwer',      games: ['tabellen', 'rechnen', 'text', 'logik', 'stroop', 'memory'], boss: 'sudoku', story: 'Tauche in die Tiefen des Datensees – hier zählen kühler Kopf und Übersicht.' },
-  { id: 4, name: 'Neuro-Vulkan',  emoji: '🌋', difficulty: 'experte',     games: ['rechnen', 'logik', 'merken', 'worte', 'tabellen', 'text', 'stroop', 'waage', 'wortgitter', 'memory'], boss: 'sudoku', story: 'Das finale Abenteuer: Im brodelnden Neuro-Vulkan warten die härtesten Prüfungen!' },
+  { id: 0, name: { de: 'Zahlenwiese', en: 'Number Meadow' }, emoji: '🌼', difficulty: 'sehr-leicht', games: ['rechnen', 'logik', 'merken', 'waage', 'memory'], boss: 'sudoku',
+    story: { de: 'Auf der sonnigen Zahlenwiese beginnt deine Reise. Sammle deine ersten Sterne!', en: 'Your journey begins on the sunny Number Meadow. Collect your first stars!' } },
+  { id: 1, name: { de: 'Wörterwald', en: 'Word Forest' }, emoji: '🌲', difficulty: 'leicht', games: ['worte', 'text', 'merken', 'wortgitter', 'memory'], boss: 'sudoku',
+    story: { de: 'Im geheimnisvollen Wörterwald verstecken sich Buchstaben zwischen den Bäumen.', en: 'In the mysterious Word Forest, letters hide between the trees.' } },
+  { id: 2, name: { de: 'Logik-Gebirge', en: 'Logic Mountains' }, emoji: '⛰️', difficulty: 'mittel', games: ['logik', 'rechnen', 'tabellen', 'waage', 'stroop'], boss: 'sudoku',
+    story: { de: 'Steile Pfade, knifflige Muster – nur wer logisch denkt, erklimmt den Gipfel.', en: 'Steep paths, tricky patterns – only logical thinkers reach the summit.' } },
+  { id: 3, name: { de: 'Datensee', en: 'Data Lake' }, emoji: '🌊', difficulty: 'schwer', games: ['tabellen', 'rechnen', 'text', 'logik', 'stroop', 'memory'], boss: 'sudoku',
+    story: { de: 'Tauche in die Tiefen des Datensees – hier zählen kühler Kopf und Übersicht.', en: 'Dive into the depths of the Data Lake – a cool head and overview count here.' } },
+  { id: 4, name: { de: 'Neuro-Vulkan', en: 'Neuro Volcano' }, emoji: '🌋', difficulty: 'experte', games: ['rechnen', 'logik', 'merken', 'worte', 'tabellen', 'text', 'stroop', 'waage', 'wortgitter', 'memory'], boss: 'sudoku',
+    story: { de: 'Das finale Abenteuer: Im brodelnden Neuro-Vulkan warten die härtesten Prüfungen!', en: 'The final adventure: the toughest trials await in the bubbling Neuro Volcano!' } },
 ];
 
 const LEVELS_PER_WORLD = 6; // 5 normale + 1 Boss
@@ -64,14 +70,14 @@ export function renderAdventureMap(root, profile, onPlayLevel) {
   root.innerHTML = `
     <div class="adv-header card">
       <div class="adv-hero">
-        <span class="adv-char" title="${escapeHtml(char.name)}">${char.emoji}</span>
+        <span class="adv-char" title="${escapeHtml(L(char.name))}">${char.emoji}</span>
         <div>
-          <h2>${escapeHtml(char.name)}s Abenteuer</h2>
-          <p class="sub">Rang: <strong>${rank.emoji} ${rank.name}</strong> · ${adv.xp} XP · ⭐ ${totalStars}/${WORLDS.length * LEVELS_PER_WORLD * 3} Sterne</p>
+          <h2>${t('adv.title', { name: escapeHtml(L(char.name)) })}</h2>
+          <p class="sub">${t('adv.rank')} <strong>${rank.emoji} ${L(rank.name)}</strong> · ${adv.xp} XP · ⭐ ${totalStars}/${WORLDS.length * LEVELS_PER_WORLD * 3} ${t('adv.stars')}</p>
           <div class="progress-bar rank-bar"><div style="width:${Math.round(rank.progress * 100)}%"></div></div>
-          <p class="sub">${rank.next ? `Noch ${rank.next.xp - adv.xp} XP bis ${rank.next.emoji} ${rank.next.name}` : 'Höchster Rang erreicht – legendär! 👑'}</p>
+          <p class="sub">${rank.next ? t('adv.xpTo', { xp: rank.next.xp - adv.xp, rank: `${rank.next.emoji} ${L(rank.next.name)}` }) : t('adv.maxRank')}</p>
         </div>
-        <button class="btn secondary" id="btn-chars">🎭 Charakter</button>
+        <button class="btn secondary" id="btn-chars">${t('adv.charsBtn')}</button>
       </div>
     </div>
     <div id="char-select"></div>
@@ -81,10 +87,10 @@ export function renderAdventureMap(root, profile, onPlayLevel) {
       return `
       <section class="world-card card ${unlocked ? '' : 'locked'}">
         <div class="world-title">
-          <h3>${w.emoji} Welt ${w.id + 1}: ${w.name}</h3>
+          <h3>${w.emoji} ${t('adv.world', { n: w.id + 1 })}: ${L(w.name)}</h3>
           <span class="pill">⭐ ${worldStars}/${LEVELS_PER_WORLD * 3}</span>
         </div>
-        <p class="world-story">${unlocked ? w.story : '🔒 Besiege den Boss der vorherigen Welt, um diese Welt freizuschalten!'}</p>
+        <p class="world-story">${unlocked ? L(w.story) : t('adv.lockedWorld')}</p>
         <div class="level-path">
           ${Array.from({ length: LEVELS_PER_WORLD }, (_, i) => {
             const lv = i + 1;
@@ -95,7 +101,7 @@ export function renderAdventureMap(root, profile, onPlayLevel) {
             return `
             <button class="level-node ${lvUnlocked ? '' : 'locked'} ${isBoss ? 'boss' : ''} ${stars > 0 ? 'done' : ''}"
                     data-world="${w.id}" data-level="${lv}" ${lvUnlocked ? '' : 'disabled'}
-                    aria-label="Level ${lv}${isBoss ? ' (Boss)' : ''}">
+                    aria-label="${t('adv.levelAria', { n: lv })}${isBoss ? t('adv.bossAria') : ''}">
               <span class="node-face">${here ? char.emoji : (lvUnlocked ? (isBoss ? '🏰' : lv) : '🔒')}</span>
               <span class="node-stars">${stars > 0 ? starsHtml(stars) : (isBoss ? 'BOSS' : '')}</span>
             </button>
@@ -116,7 +122,7 @@ function renderCharacterSelect(slot, profile, rerender) {
   const rank = xpToRank(profile.adventure.xp);
   slot.innerHTML = `
     <div class="card" style="margin-bottom:1rem">
-      <h3>🎭 Wähle deinen Helden</h3>
+      <h3>${t('adv.chooseHero')}</h3>
       <div class="char-grid">
         ${CHARACTERS.map(c => {
           const unlocked = rank.index >= c.unlockRank;
@@ -124,8 +130,8 @@ function renderCharacterSelect(slot, profile, rerender) {
           return `
           <button class="char-card ${active ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-char="${c.id}" ${unlocked ? '' : 'disabled'}>
             <span class="char-emoji">${unlocked ? c.emoji : '🔒'}</span>
-            <span>${c.name}</span>
-            <small>${unlocked ? (active ? 'Ausgewählt ✓' : 'Verfügbar') : `Ab Rang: ${RANKS[c.unlockRank].emoji} ${RANKS[c.unlockRank].name}`}</small>
+            <span>${L(c.name)}</span>
+            <small>${unlocked ? (active ? t('adv.selected') : t('adv.available')) : t('adv.fromRank', { rank: `${RANKS[c.unlockRank].emoji} ${L(RANKS[c.unlockRank].name)}` })}</small>
           </button>`;
         }).join('')}
       </div>
@@ -158,14 +164,14 @@ export function playLevel(root, profile, worldId, level, onExit) {
     root.innerHTML = `
       <div class="card">
         <div class="game-header">
-          <h2>${char.emoji} ${world.emoji} Welt ${worldId + 1} – ${isBoss ? '🏰 BOSS-LEVEL' : `Level ${level}`}</h2>
-          <span class="pill">Aufgabe ${taskIndex + 1}/${tasks.length} · ✅ ${correct}</span>
+          <h2>${char.emoji} ${world.emoji} ${t('adv.world', { n: worldId + 1 })} – ${isBoss ? t('adv.bossLevel') : t('adv.level', { n: level })}</h2>
+          <span class="pill">${t('adv.taskOf', { i: taskIndex + 1, n: tasks.length })} · ✅ ${correct}</span>
         </div>
         <div class="adv-progress progress-bar"><div style="width:${(taskIndex / tasks.length) * 100}%"></div></div>
         <div id="task-area" style="margin-top:1rem"></div>
         <div class="btn-row">
-          <button class="btn secondary" id="btn-solution">💡 Lösung zeigen</button>
-          <button class="btn ghost" id="btn-quit">✖ Level abbrechen</button>
+          <button class="btn secondary" id="btn-solution">${t('shell.showSolution')}</button>
+          <button class="btn ghost" id="btn-quit">${t('adv.quit')}</button>
         </div>
         <div id="continue-slot"></div>
       </div>`;
@@ -201,8 +207,8 @@ export function playLevel(root, profile, worldId, level, onExit) {
       const last = taskIndex === tasks.length - 1;
       slot.innerHTML = `
         <div class="round-result">
-          <p class="delta ${won ? 'up' : 'down'}">${won ? pick(['💪 Stark!', '🎯 Volltreffer!', '⚡ Weiter so!', '🌟 Klasse!']) : pick(['Kopf hoch – weiter geht\'s!', 'Beim nächsten Mal klappt\'s!'])}</p>
-          <button class="btn" id="btn-continue">${last ? '🏁 Level abschließen' : 'Weiter →'}</button>
+          <p class="delta ${won ? 'up' : 'down'}">${won ? pick([t('adv.praise1'), t('adv.praise2'), t('adv.praise3'), t('adv.praise4')]) : pick([t('adv.consol1'), t('adv.consol2')])}</p>
+          <button class="btn" id="btn-continue">${last ? t('adv.finishLevel') : t('adv.continue')}</button>
         </div>`;
       slot.querySelector('#btn-continue').addEventListener('click', () => {
         taskIndex++;
@@ -240,16 +246,16 @@ export function playLevel(root, profile, worldId, level, onExit) {
     root.innerHTML = `
       <div class="card round-result adv-finish">
         <div class="adv-char" style="font-size:4rem">${stars > 0 ? char.emoji : '😅'}</div>
-        <h2>${stars > 0 ? (bossBeaten ? '🏰 Boss besiegt!' : 'Level geschafft!') : 'Fast geschafft!'}</h2>
+        <h2>${stars > 0 ? (bossBeaten ? t('adv.bossBeaten') : t('adv.levelDone')) : t('adv.almost')}</h2>
         <p class="adv-stars ${stars > 0 ? 'won' : ''}">${starsHtml(stars)}</p>
-        <p>${correct}/${tasks.length} Aufgaben richtig · <strong>+${xp} XP</strong></p>
-        ${rankUp ? `<div class="solution-box rankup"><h4>🎉 RANG-AUFSTIEG!</h4><p>Du bist jetzt <strong>${rankAfter.emoji} ${rankAfter.name}</strong>!</p></div>` : ''}
-        ${newChars.map(c => `<div class="solution-box rankup"><h4>🎭 Neuer Held freigeschaltet!</h4><p><span style="font-size:2rem">${c.emoji}</span> <strong>${c.name}</strong> wartet auf dich!</p></div>`).join('')}
-        ${bossBeaten && worldId < WORLDS.length - 1 ? `<div class="solution-box rankup"><h4>🗺️ Neue Welt entdeckt!</h4><p>${WORLDS[worldId + 1].emoji} <strong>${WORLDS[worldId + 1].name}</strong> ist jetzt freigeschaltet!</p></div>` : ''}
-        ${stars === 0 ? '<p class="sub">Du brauchst mindestens die Hälfte richtig, um das Level zu bestehen. Versuch es gleich nochmal – du schaffst das!</p>' : ''}
+        <p>${t('adv.tasksRight', { c: correct, n: tasks.length })} · <strong>+${xp} XP</strong></p>
+        ${rankUp ? `<div class="solution-box rankup"><h4>${t('adv.rankUp')}</h4><p>${t('adv.youAreNow', { rank: `${rankAfter.emoji} ${L(rankAfter.name)}` })}</p></div>` : ''}
+        ${newChars.map(c => `<div class="solution-box rankup"><h4>${t('adv.newHero')}</h4><p><span style="font-size:2rem">${c.emoji}</span> ${t('adv.heroWaits', { name: L(c.name) })}</p></div>`).join('')}
+        ${bossBeaten && worldId < WORLDS.length - 1 ? `<div class="solution-box rankup"><h4>${t('adv.newWorld')}</h4><p>${WORLDS[worldId + 1].emoji} ${t('adv.worldUnlocked', { name: L(WORLDS[worldId + 1].name) })}</p></div>` : ''}
+        ${stars === 0 ? `<p class="sub">${t('adv.needHalf')}</p>` : ''}
         <div class="btn-row" style="justify-content:center">
-          ${stars < 3 ? '<button class="btn secondary" id="btn-retry">🔄 Nochmal versuchen</button>' : ''}
-          <button class="btn" id="btn-map">🗺️ Zur Weltkarte</button>
+          ${stars < 3 ? `<button class="btn secondary" id="btn-retry">${t('adv.retry')}</button>` : ''}
+          <button class="btn" id="btn-map">${t('adv.toMap')}</button>
         </div>
       </div>`;
 

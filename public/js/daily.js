@@ -6,6 +6,7 @@ import {
 } from './core.js';
 import { confetti, celebrateAchievements } from './effects.js';
 import { RENDERERS } from './renderers.js';
+import { t, L } from './i18n.js';
 
 const TASK_COUNT = 3;
 const XP_PER_CORRECT = 15;
@@ -41,14 +42,14 @@ export function playDaily(root, profile, onExit) {
     root.innerHTML = `
       <div class="card">
         <div class="game-header">
-          <h2>📅 Tages-Challenge</h2>
-          <span class="pill">${game.icon} ${game.name} · Aufgabe ${taskIndex + 1}/${TASK_COUNT}</span>
+          <h2>${t('daily.title')}</h2>
+          <span class="pill">${game.icon} ${L(game.name)} · ${t('adv.taskOf', { i: taskIndex + 1, n: TASK_COUNT })}</span>
         </div>
         <div class="adv-progress progress-bar"><div style="width:${(taskIndex / TASK_COUNT) * 100}%"></div></div>
         <div id="task-area" style="margin-top:1rem"></div>
         <div class="btn-row">
-          <button class="btn secondary" id="btn-solution">💡 Lösung zeigen</button>
-          <button class="btn ghost" id="btn-quit">✖ Abbrechen</button>
+          <button class="btn secondary" id="btn-solution">${t('shell.showSolution')}</button>
+          <button class="btn ghost" id="btn-quit">${t('adv.quit')}</button>
         </div>
         <div id="continue-slot"></div>
       </div>`;
@@ -79,8 +80,8 @@ export function playDaily(root, profile, onExit) {
       const slot = root.querySelector('#continue-slot');
       slot.innerHTML = `
         <div class="round-result">
-          <p class="delta ${won ? 'up' : 'down'}">${won ? '✅ Richtig!' : 'Nächstes Mal!'}</p>
-          <button class="btn" id="btn-continue">${last ? '🏁 Challenge abschließen' : 'Weiter →'}</button>
+          <p class="delta ${won ? 'up' : 'down'}">${won ? t('daily.right') : t('daily.nextTime')}</p>
+          <button class="btn" id="btn-continue">${last ? t('daily.finishBtn') : t('adv.continue')}</button>
         </div>`;
       slot.querySelector('#btn-continue').addEventListener('click', () => {
         taskIndex++;
@@ -114,14 +115,14 @@ export function playDaily(root, profile, onExit) {
     root.innerHTML = `
       <div class="card round-result adv-finish">
         <div class="adv-char" style="font-size:4rem">${passed ? '🔥' : '😅'}</div>
-        <h2>${passed ? 'Tages-Challenge geschafft!' : 'Knapp daneben!'}</h2>
-        <p>${correct}/${TASK_COUNT} richtig · <strong>+${xp} XP</strong>${streakBonus ? ` (davon +${streakBonus} Streak-Bonus)` : ''}</p>
-        ${passed ? `<p class="daily-streak-big">🔥 ${streak} ${streak === 1 ? 'Tag' : 'Tage'} in Folge!</p>` : ''}
-        ${rankUp ? `<div class="solution-box rankup"><h4>🎉 RANG-AUFSTIEG!</h4><p>Du bist jetzt <strong>${rankAfter.emoji} ${rankAfter.name}</strong>!</p></div>` : ''}
-        ${!passed ? '<p class="sub">Du brauchst 2 von 3 richtig. Kein Stress – du kannst es sofort nochmal versuchen!</p>' : '<p class="sub">Komm morgen wieder, um deinen Streak fortzusetzen!</p>'}
+        <h2>${passed ? t('daily.done') : t('daily.missed')}</h2>
+        <p>${t('daily.result', { c: correct, n: TASK_COUNT })} · <strong>+${xp} XP</strong>${streakBonus ? t('daily.streakBonus', { b: streakBonus }) : ''}</p>
+        ${passed ? `<p class="daily-streak-big">${t(streak === 1 ? 'daily.dayInRow' : 'daily.daysInRow', { n: streak })}</p>` : ''}
+        ${rankUp ? `<div class="solution-box rankup"><h4>${t('adv.rankUp')}</h4><p>${t('adv.youAreNow', { rank: `${rankAfter.emoji} ${L(rankAfter.name)}` })}</p></div>` : ''}
+        ${!passed ? `<p class="sub">${t('daily.need2')}</p>` : `<p class="sub">${t('daily.comeback')}</p>`}
         <div class="btn-row" style="justify-content:center">
-          ${!passed ? '<button class="btn secondary" id="btn-retry">🔄 Nochmal versuchen</button>' : ''}
-          <button class="btn" id="btn-home">Zur Übersicht</button>
+          ${!passed ? `<button class="btn secondary" id="btn-retry">${t('adv.retry')}</button>` : ''}
+          <button class="btn" id="btn-home">${t('daily.toHome')}</button>
         </div>
       </div>`;
 

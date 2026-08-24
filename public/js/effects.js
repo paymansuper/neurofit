@@ -1,5 +1,6 @@
 // ===== Visuelle Effekte: Konfetti & Toast-Benachrichtigungen =====
 // Kein Audio – nur Augenschmaus. Respektiert prefers-reduced-motion.
+import { t, L } from './i18n.js';
 
 const COLORS = ['#4f6df5', '#22a06b', '#e8a13c', '#d64550', '#8b5cf6', '#d946ef', '#06b6d4'];
 const SHAPES = ['▪', '●', '★', '▲'];
@@ -84,7 +85,7 @@ export function celebrateAchievements(unlocked) {
   unlocked.forEach((a, i) => {
     setTimeout(() => toast(
       `<span class="toast-emoji">${a.emoji}</span>
-       <span><strong>Abzeichen freigeschaltet!</strong><br>${a.name} – ${a.desc}</span>`
+       <span><strong>${t('toast.badge')}</strong><br>${L(a.name)} – ${L(a.desc)}</span>`
     ), i * 700);
   });
 }

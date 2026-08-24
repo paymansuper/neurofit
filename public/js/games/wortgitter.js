@@ -1,12 +1,21 @@
 // ===== Wortgitter: Verstecktes Wort im Buchstabenraster finden =====
 import { randInt, pick } from '../core.js';
+import { t, getLang } from '../i18n.js';
 
-const WORDS = {
+const WORDS_DE = {
   'sehr-leicht': ['OMA', 'HUND', 'BALL', 'HAUS', 'ROT', 'EIS', 'AUTO', 'BAUM', 'SONNE', 'KATZE'],
   'leicht':      ['GARTEN', 'BLUME', 'WINTER', 'SCHULE', 'APFEL', 'TISCH', 'WOLKE', 'BROT', 'VOGEL', 'REGEN'],
   'mittel':      ['FENSTER', 'GEBIRGE', 'MUSKEL', 'PLANET', 'THEATER', 'KOMPASS', 'LATERNE', 'SCHATTEN', 'KAPITEL', 'WERKZEUG'],
   'schwer':      ['BIBLIOTHEK', 'SCHMETTERLING', 'ORCHESTER', 'LABYRINTH', 'HORIZONT', 'VULKANE', 'PYRAMIDE', 'KALENDER', 'MIKROSKOP'],
   'experte':     ['GEDAECHTNIS', 'KONZENTRATION', 'ARCHITEKTUR', 'PHILOSOPHIE', 'ATMOSPHAERE', 'ENZYKLOPAEDIE', 'PERSPEKTIVE'],
+};
+
+const WORDS_EN = {
+  'sehr-leicht': ['CAT', 'DOG', 'BALL', 'HOUSE', 'RED', 'ICE', 'CAR', 'TREE', 'SUN', 'STAR'],
+  'leicht':      ['GARDEN', 'FLOWER', 'WINTER', 'SCHOOL', 'APPLE', 'TABLE', 'CLOUD', 'BREAD', 'BIRD', 'RAIN'],
+  'mittel':      ['WINDOW', 'MOUNTAIN', 'MUSCLE', 'PLANET', 'THEATER', 'COMPASS', 'LANTERN', 'SHADOW', 'CHAPTER', 'TOOLBOX'],
+  'schwer':      ['LIBRARY', 'BUTTERFLY', 'ORCHESTRA', 'LABYRINTH', 'HORIZON', 'VOLCANO', 'PYRAMID', 'CALENDAR', 'MICROSCOPE'],
+  'experte':     ['REMEMBRANCE', 'CONCENTRATION', 'ARCHITECTURE', 'PHILOSOPHY', 'ATMOSPHERE', 'ENCYCLOPEDIA', 'PERSPECTIVE'],
 };
 
 const CONFIG = {
@@ -17,11 +26,14 @@ const CONFIG = {
   'experte':     { size: 13, dirs: ['h', 'v', 'd'] },
 };
 
-// Buchstabenhäufigkeit (grob deutsch) für die Füllbuchstaben
-const FILL = 'EEEEEENNNNNIIIRRRSSSAAATTTDDHHUULLCCGGMMOOBBWWFFKKZZPV';
+// Buchstabenhäufigkeit (grob) für die Füllbuchstaben
+const FILL_DE = 'EEEEEENNNNNIIIRRRSSSAAATTTDDHHUULLCCGGMMOOBBWWFFKKZZPV';
+const FILL_EN = 'EEEEEETTTTTAAAAOOOIIINNNSSSHHHRRRDDLLLCCUUMMWWFFGGYYPB';
 
 export function renderWortgitter(container, difficulty, api) {
   const cfg = CONFIG[difficulty];
+  const WORDS = getLang() === 'en' ? WORDS_EN : WORDS_DE;
+  const FILL = getLang() === 'en' ? FILL_EN : FILL_DE;
   const word = pick(WORDS[difficulty]);
   const n = Math.max(cfg.size, word.length);
 
@@ -41,8 +53,8 @@ export function renderWortgitter(container, difficulty, api) {
   let mistakes = 0;
 
   container.innerHTML = `
-    <p class="task-question">🔠 Finde das Wort <strong>${word}</strong> im Gitter und klicke seine Buchstaben <em>der Reihe nach</em> an!</p>
-    <p class="sub" style="text-align:center;color:var(--muted)" id="wg-status">Richtung: waagrecht${cfg.dirs.includes('v') ? ', senkrecht' : ''}${cfg.dirs.includes('d') ? ' oder diagonal' : ''} · Fehlklicks: 0 / ${maxMistakes}</p>
+    <p class="task-question">${t('wg.instruction', { w: word })}</p>
+    <p class="sub" style="text-align:center;color:var(--muted)" id="wg-status">${t('wg.status', { dirs: cfg.dirs.map(d => t(`wg.dirs.${d}`)).join(' / '), m: 0, max: maxMistakes })}</p>
     <div class="wg-grid" style="--n:${n}">
       ${grid.map((ch, i) => `<button class="wg-cell" data-i="${i}">${ch}</button>`).join('')}
     </div>
@@ -64,7 +76,7 @@ export function renderWortgitter(container, difficulty, api) {
         el.classList.add('found');
         nextIdx++;
         if (nextIdx === path.length) {
-          feedback.textContent = `✅ Super gefunden – „${word}" war gut versteckt!`;
+          feedback.textContent = t('wg.found', { w: word });
           feedback.className = 'feedback ok';
           api.finish(true);
         }
@@ -72,16 +84,16 @@ export function renderWortgitter(container, difficulty, api) {
         mistakes++;
         el.classList.add('wrong');
         setTimeout(() => el.classList.remove('wrong'), 500);
-        statusEl.textContent = `Fehlklicks: ${mistakes} / ${maxMistakes}`;
+        statusEl.textContent = t('wg.mistakes', { m: mistakes, max: maxMistakes });
         if (mistakes >= maxMistakes) {
           revealPath();
-          feedback.textContent = '❌ Zu viele Fehlklicks – hier war das Wort versteckt.';
+          feedback.textContent = t('wg.tooMany');
           feedback.className = 'feedback bad';
           api.finish(false);
         } else {
           feedback.textContent = nextIdx > 0
-            ? `❌ Das war nicht der nächste Buchstabe – gesucht ist „${word[nextIdx]}".`
-            : `❌ Dort beginnt das Wort nicht – suche den Anfangsbuchstaben „${word[0]}".`;
+            ? t('wg.notNext', { ch: word[nextIdx] })
+            : t('wg.notStart', { ch: word[0] });
           feedback.className = 'feedback bad';
         }
       }
@@ -92,9 +104,9 @@ export function renderWortgitter(container, difficulty, api) {
     showSolution() {
       revealPath();
       container.querySelector('#solution-slot').innerHTML = `
-        <div class="solution-box"><h4>💡 Lösung</h4>
-          <p>Das Wort <strong>${word}</strong> ist jetzt markiert.</p>
-          <p>Tipp: Suche zuerst nur den Anfangsbuchstaben und prüfe von dort aus alle Richtungen – Zeile für Zeile scannen ist schneller als wildes Springen.</p>
+        <div class="solution-box"><h4>${t('shell.solution')}</h4>
+          <p>${t('wg.marked', { w: word })}</p>
+          <p>${t('wg.tip')}</p>
         </div>`;
     },
   };

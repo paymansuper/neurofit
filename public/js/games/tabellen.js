@@ -1,12 +1,17 @@
 // ===== Tabellen-Denken: Excel-artige Auswertungsaufgaben =====
 import { randInt, pick, shuffle } from '../core.js';
 import { simpleInputTask } from '../gameshell.js';
+import { t as tr, L } from '../i18n.js';
 
 const SCENARIOS = [
-  { title: 'Wochenmarkt-Verkäufe', rowLabel: 'Produkt', rows: ['Äpfel', 'Brot', 'Käse', 'Honig', 'Eier'], unit: '€' },
-  { title: 'Schrittzähler der Woche', rowLabel: 'Tag', rows: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'], unit: 'Schritte' },
-  { title: 'Vereinsmitglieder', rowLabel: 'Gruppe', rows: ['Fußball', 'Turnen', 'Schwimmen', 'Tennis', 'Schach'], unit: 'Personen' },
-  { title: 'Monatsausgaben', rowLabel: 'Kategorie', rows: ['Lebensmittel', 'Fahrtkosten', 'Freizeit', 'Kleidung', 'Sonstiges'], unit: '€' },
+  { title: { de: 'Wochenmarkt-Verkäufe', en: 'Farmers Market Sales' }, rowLabel: { de: 'Produkt', en: 'Product' },
+    rows: [ { de: 'Äpfel', en: 'Apples' }, { de: 'Brot', en: 'Bread' }, { de: 'Käse', en: 'Cheese' }, { de: 'Honig', en: 'Honey' }, { de: 'Eier', en: 'Eggs' } ], unit: { de: '€', en: '€' } },
+  { title: { de: 'Schrittzähler der Woche', en: 'Step Counter This Week' }, rowLabel: { de: 'Tag', en: 'Day' },
+    rows: [ { de: 'Montag', en: 'Monday' }, { de: 'Dienstag', en: 'Tuesday' }, { de: 'Mittwoch', en: 'Wednesday' }, { de: 'Donnerstag', en: 'Thursday' }, { de: 'Freitag', en: 'Friday' } ], unit: { de: 'Schritte', en: 'steps' } },
+  { title: { de: 'Vereinsmitglieder', en: 'Club Members' }, rowLabel: { de: 'Gruppe', en: 'Group' },
+    rows: [ { de: 'Fußball', en: 'Football' }, { de: 'Turnen', en: 'Gymnastics' }, { de: 'Schwimmen', en: 'Swimming' }, { de: 'Tennis', en: 'Tennis' }, { de: 'Schach', en: 'Chess' } ], unit: { de: 'Personen', en: 'people' } },
+  { title: { de: 'Monatsausgaben', en: 'Monthly Expenses' }, rowLabel: { de: 'Kategorie', en: 'Category' },
+    rows: [ { de: 'Lebensmittel', en: 'Groceries' }, { de: 'Fahrtkosten', en: 'Transport' }, { de: 'Freizeit', en: 'Leisure' }, { de: 'Kleidung', en: 'Clothing' }, { de: 'Sonstiges', en: 'Other' } ], unit: { de: '€', en: '€' } },
 ];
 
 const CONFIG = {
@@ -20,7 +25,7 @@ const CONFIG = {
 function generate(difficulty) {
   const cfg = CONFIG[difficulty];
   const sc = pick(SCENARIOS);
-  const rows = shuffle(sc.rows).slice(0, cfg.rows);
+  const rows = shuffle(sc.rows).slice(0, cfg.rows).map(r => L(r));
   let values = rows.map(() => randInt(cfg.min, cfg.max));
   const task = pick(cfg.tasks);
 
@@ -29,22 +34,22 @@ function generate(difficulty) {
   let question, answer, explain;
   switch (task) {
     case 'sum':
-      question = `Wie groß ist die <strong>Summe</strong> aller Werte?`;
+      question = tr('tab.sum');
       answer = sum;
-      explain = `${values.join(' + ')} = ${sum} <em>(in Excel: =SUMME(B2:B${rows.length + 1}))</em>`;
+      explain = tr('tab.exSum', { calc: `${values.join(' + ')} = ${sum}` });
       break;
     case 'max': {
       const m = Math.max(...values);
-      question = `Welcher Wert ist der <strong>größte</strong>?`;
+      question = tr('tab.max');
       answer = m;
-      explain = `Der größte Wert ist ${m} (${rows[values.indexOf(m)]}). <em>(in Excel: =MAX(...))</em>`;
+      explain = tr('tab.exMax', { v: m, row: rows[values.indexOf(m)] });
       break;
     }
     case 'min': {
       const m = Math.min(...values);
-      question = `Welcher Wert ist der <strong>kleinste</strong>?`;
+      question = tr('tab.min');
       answer = m;
-      explain = `Der kleinste Wert ist ${m} (${rows[values.indexOf(m)]}). <em>(in Excel: =MIN(...))</em>`;
+      explain = tr('tab.exMin', { v: m, row: rows[values.indexOf(m)] });
       break;
     }
     case 'avg': {
@@ -58,14 +63,14 @@ function generate(difficulty) {
       }
       const s = values.reduce((a, b) => a + b, 0);
       answer = s / values.length;
-      question = `Wie groß ist der <strong>Durchschnitt</strong> (Mittelwert) aller Werte?`;
-      explain = `Summe ${s} ÷ ${values.length} Werte = ${answer} <em>(in Excel: =MITTELWERT(...))</em>`;
+      question = tr('tab.avg');
+      explain = tr('tab.exAvg', { s, n: values.length, a: answer });
       break;
     }
     case 'diff': {
       const max = Math.max(...values), min = Math.min(...values);
       answer = max - min;
-      question = `Wie groß ist die <strong>Differenz</strong> zwischen dem größten und dem kleinsten Wert?`;
+      question = tr('tab.diff');
       explain = `${max} − ${min} = ${answer}`;
       break;
     }
@@ -78,8 +83,8 @@ function generate(difficulty) {
       values = shuffle([share, ...others]);
       const idx = values.indexOf(share);
       answer = pct;
-      question = `Wie viel <strong>Prozent</strong> der Gesamtsumme (${total}) entfällt auf <strong>${rows[idx]}</strong>?`;
-      explain = `${share} von ${total} = ${share} ÷ ${total} × 100 = ${pct} %`;
+      question = tr('tab.pct', { total, row: rows[idx] });
+      explain = `${share} ÷ ${total} × 100 = ${pct} %`;
       break;
     }
     case 'growth':
@@ -90,7 +95,7 @@ function generate(difficulty) {
       values[0] = oldV;
       values[1] = newV;
       answer = pct;
-      question = `<strong>${rows[1]}</strong> ist von ${oldV} auf ${newV} gestiegen. Um wie viel <strong>Prozent</strong> ist der Wert gewachsen?`;
+      question = tr('tab.growth', { row: rows[1], old: oldV, new: newV });
       explain = `(${newV} − ${oldV}) ÷ ${oldV} × 100 = ${pct} %`;
       break;
     }
@@ -115,9 +120,9 @@ function distribute(total, parts, min) {
 export function renderTabellen(container, difficulty, api) {
   const t = generate(difficulty);
   const tableHtml = `
-    <h3 style="text-align:center;margin-top:0.5rem">${t.sc.title}</h3>
+    <h3 style="text-align:center;margin-top:0.5rem">${L(t.sc.title)}</h3>
     <table class="data-table">
-      <thead><tr><th>${t.sc.rowLabel}</th><th>Wert (${t.sc.unit})</th></tr></thead>
+      <thead><tr><th>${L(t.sc.rowLabel)}</th><th>${tr('tab.value', { u: L(t.sc.unit) })}</th></tr></thead>
       <tbody>${t.rows.map((r, i) => `<tr><td>${r}</td><td>${t.values[i]}</td></tr>`).join('')}</tbody>
     </table>`;
 

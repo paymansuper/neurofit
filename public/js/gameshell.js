@@ -1,6 +1,7 @@
 // ===== Gemeinsames Spiel-Gerüst: Schwierigkeitswahl, Auswertung, Lösung =====
 import { DIFFICULTIES, recommendedDifficulty, updateRating, eloToLevel, escapeHtml, checkAchievements } from './core.js';
 import { sparkle, celebrateAchievements } from './effects.js';
+import { t, L } from './i18n.js';
 
 /**
  * Baut den Rahmen für ein Spiel auf.
@@ -18,10 +19,10 @@ export function gameShell(root, profile, game, renderTask, goHome) {
     const lvl = eloToLevel(r.elo);
     return `
       <div class="game-header">
-        <h2>${game.icon} ${escapeHtml(game.name)}</h2>
+        <h2>${game.icon} ${escapeHtml(L(game.name))}</h2>
         <div>
-          <span class="pill">Skill: ${r.elo} ${lvl.emoji}</span>
-          <span class="pill">🔥 Serie: ${r.streak}</span>
+          <span class="pill">${t('shell.skill')}: ${r.elo} ${lvl.emoji}</span>
+          <span class="pill">🔥 ${t('shell.streak')}: ${r.streak}</span>
         </div>
       </div>`;
   }
@@ -30,7 +31,7 @@ export function gameShell(root, profile, game, renderTask, goHome) {
     const rec = recommendedDifficulty(profile, game.id);
     return `<div class="diff-row">${DIFFICULTIES.map(d => `
       <button class="diff-btn ${d.id === difficulty ? 'active' : ''}" data-diff="${d.id}">
-        ${d.label}${d.id === rec ? '<span class="rec">empfohlen</span>' : ''}
+        ${L(d.label)}${d.id === rec ? `<span class="rec">${t('shell.recommended')}</span>` : ''}
       </button>`).join('')}</div>`;
   }
 
@@ -43,9 +44,9 @@ export function gameShell(root, profile, game, renderTask, goHome) {
         ${diffRow()}
         <div id="task-area"></div>
         <div class="btn-row">
-          <button class="btn secondary" id="btn-solution">💡 Lösung zeigen</button>
-          <button class="btn secondary" id="btn-new">🔄 Neue Aufgabe</button>
-          <button class="btn ghost" id="btn-back">← Zurück zur Übersicht</button>
+          <button class="btn secondary" id="btn-solution">${t('shell.showSolution')}</button>
+          <button class="btn secondary" id="btn-new">${t('shell.newTask')}</button>
+          <button class="btn ghost" id="btn-back">${t('shell.back')}</button>
         </div>
         <div id="result-area"></div>
       </div>`;
@@ -88,10 +89,10 @@ export function gameShell(root, profile, game, renderTask, goHome) {
     const sign = delta >= 0 ? '+' : '';
     area.innerHTML = `
       <div class="round-result">
-        <p class="delta ${cls}">${won ? '🎉 Richtig gelöst!' : solutionUsedText()} ${sign}${delta} Punkte</p>
-        <p class="sub">Dein Skillrating: <strong>${r.elo}</strong> ${eloToLevel(r.elo).emoji}</p>
+        <p class="delta ${cls}">${won ? t('shell.correct') : t('shell.solutionUsed')} ${sign}${delta} ${t('shell.points')}</p>
+        <p class="sub">${t('shell.rating')} <strong>${r.elo}</strong> ${eloToLevel(r.elo).emoji}</p>
         <div class="btn-row" style="justify-content:center">
-          <button class="btn" id="btn-next">Nächste Aufgabe →</button>
+          <button class="btn" id="btn-next">${t('shell.next')}</button>
         </div>
       </div>`;
     area.querySelector('#btn-next').addEventListener('click', render);
@@ -100,10 +101,6 @@ export function gameShell(root, profile, game, renderTask, goHome) {
     if (headerEl) headerEl.outerHTML = header();
     if (won) sparkle(area.querySelector('.delta'));
     celebrateAchievements(checkAchievements(profile));
-  }
-
-  function solutionUsedText() {
-    return '💡 Kein Problem – mit der Lösung lernst du auch!';
   }
 
   render();
@@ -115,8 +112,8 @@ export function simpleInputTask(container, api, { question, answer, solutionHtml
     <p class="task-question">${question}</p>
     <div class="answer-center">
       <input class="answer-input" id="answer" inputmode="${inputMode === 'numeric' ? 'numeric' : 'text'}"
-             autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Deine Antwort">
-      <button class="btn" id="check">Prüfen ✓</button>
+             autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="${t('shell.answerLabel')}">
+      <button class="btn" id="check">${t('shell.check')}</button>
     </div>
     <div class="feedback" id="feedback"></div>
     <div id="solution-slot"></div>`;
@@ -131,17 +128,17 @@ export function simpleInputTask(container, api, { question, answer, solutionHtml
     const val = norm(input.value);
     if (!val) return;
     if (val === norm(answer)) {
-      feedback.textContent = '✅ Richtig!';
+      feedback.textContent = t('shell.right');
       feedback.className = 'feedback ok';
       api.finish(true);
     } else {
       attempts++;
       if (attempts >= 3) {
-        feedback.textContent = `❌ Leider falsch. Die richtige Antwort war: ${answer}`;
+        feedback.textContent = t('shell.rightAnswerWas', { a: answer });
         feedback.className = 'feedback bad';
         api.finish(false);
       } else {
-        feedback.textContent = `❌ Noch nicht richtig – versuch es nochmal! (Versuch ${attempts}/3)`;
+        feedback.textContent = t('shell.tryAgain', { n: attempts });
         feedback.className = 'feedback bad';
       }
     }
@@ -154,7 +151,7 @@ export function simpleInputTask(container, api, { question, answer, solutionHtml
   return {
     showSolution() {
       container.querySelector('#solution-slot').innerHTML = `
-        <div class="solution-box"><h4>💡 Lösung</h4>${solutionHtml || `<p>Antwort: <strong>${answer}</strong></p>`}</div>`;
+        <div class="solution-box"><h4>${t('shell.solution')}</h4>${solutionHtml || `<p>${t('shell.answer')}: <strong>${answer}</strong></p>`}</div>`;
     },
   };
 }
@@ -175,13 +172,13 @@ export function multipleChoiceTask(container, api, { question, options, correctI
       const i = Number(b.dataset.i);
       if (i === correctIndex) {
         b.classList.add('correct');
-        feedback.textContent = '✅ Richtig!';
+        feedback.textContent = t('shell.right');
         feedback.className = 'feedback ok';
         api.finish(true);
       } else {
         b.classList.add('wrong');
         container.querySelectorAll('.mc-btn')[correctIndex].classList.add('correct');
-        feedback.textContent = '❌ Leider falsch.';
+        feedback.textContent = t('shell.wrong');
         feedback.className = 'feedback bad';
         api.finish(false);
       }
@@ -192,7 +189,7 @@ export function multipleChoiceTask(container, api, { question, options, correctI
     showSolution() {
       container.querySelectorAll('.mc-btn')[correctIndex].classList.add('correct');
       container.querySelector('#solution-slot').innerHTML = `
-        <div class="solution-box"><h4>💡 Lösung</h4>${solutionHtml || `<p>Richtige Antwort: <strong>${options[correctIndex]}</strong></p>`}</div>`;
+        <div class="solution-box"><h4>${t('shell.solution')}</h4>${solutionHtml || `<p>${t('shell.correctAnswer')}: <strong>${options[correctIndex]}</strong></p>`}</div>`;
     },
   };
 }

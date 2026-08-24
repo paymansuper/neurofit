@@ -1,8 +1,9 @@
 // ===== Text-Training: Finde das falsch geschriebene Wort im Satz =====
 import { pick, randInt, escapeHtml } from '../core.js';
+import { t as tr, getLang } from '../i18n.js';
 
 // Jeder Eintrag: Satz (Wörter korrekt) + Map von möglichen Fehlschreibungen.
-const SENTENCES = {
+const SENTENCES_DE = {
   'sehr-leicht': [
     { words: ['Der', 'Hund', 'spielt', 'im', 'Garten'], errs: { Hund: 'Hunt', spielt: 'schpielt', Garten: 'Gahten' } },
     { words: ['Die', 'Sonne', 'scheint', 'am', 'Himmel'], errs: { Sonne: 'Sone', scheint: 'scheind', Himmel: 'Himel' } },
@@ -35,7 +36,41 @@ const SENTENCES = {
   ],
 };
 
+const SENTENCES_EN = {
+  'sehr-leicht': [
+    { words: ['The', 'dog', 'plays', 'in', 'the', 'garden'], errs: { dog: 'dogg', plays: 'plaies', garden: 'gardan' } },
+    { words: ['The', 'sun', 'shines', 'in', 'the', 'sky'], errs: { sun: 'sunn', shines: 'shins', sky: 'skye' } },
+    { words: ['We', 'eat', 'fresh', 'bread', 'today'], errs: { eat: 'eet', fresh: 'frech', bread: 'bred' } },
+    { words: ['The', 'car', 'drives', 'very', 'fast'], errs: { drives: 'drivs', very: 'verry', fast: 'faast' } },
+  ],
+  'leicht': [
+    { words: ['My', 'sister', 'likes', 'reading', 'exciting', 'books'], errs: { sister: 'sisster', reading: 'reeding', exciting: 'exiting', books: 'bookes' } },
+    { words: ['In', 'autumn', 'the', 'colorful', 'leaves', 'fall'], errs: { autumn: 'autum', colorful: 'colorfull', leaves: 'leafes' } },
+    { words: ['The', 'teacher', 'explains', 'the', 'difficult', 'exercise'], errs: { teacher: 'teacher', explains: 'explanes', difficult: 'dificult', exercise: 'exercize' } },
+    { words: ['We', 'visit', 'our', 'grandparents', 'every', 'weekend'], errs: { visit: 'vissit', grandparents: 'grandparants', weekend: 'weekand' } },
+  ],
+  'mittel': [
+    { words: ['The', 'team', 'clearly', 'won', 'the', 'decisive', 'match'], errs: { clearly: 'clearely', decisive: 'desicive', match: 'mach' } },
+    { words: ['The', 'rhythm', 'of', 'the', 'music', 'delighted', 'the', 'audience'], errs: { rhythm: 'rythm', delighted: 'delited', audience: 'audiance' } },
+    { words: ['The', 'library', 'opens', 'daily', 'except', 'Sundays'], errs: { library: 'libary', daily: 'dayly', except: 'exept' } },
+    { words: ['He', 'is', 'interested', 'in', 'modern', 'architecture'], errs: { interested: 'intrested', modern: 'modren', architecture: 'architechture' } },
+  ],
+  'schwer': [
+    { words: ['The', 'negotiations', 'were', 'postponed', 'due', 'to', 'unforeseen', 'events'], errs: { negotiations: 'negociations', postponed: 'postphoned', unforeseen: 'unforseen' } },
+    { words: ['His', 'decision', 'was', 'based', 'on', 'thorough', 'research'], errs: { decision: 'desision', thorough: 'thorogh', research: 'reserch' } },
+    { words: ['The', 'committee', 'discussed', 'the', 'strategy', 'for', 'hours'], errs: { committee: 'comittee', discussed: 'discused', strategy: 'stratergy' } },
+    { words: ['The', 'atmosphere', 'in', 'the', 'concert', 'hall', 'was', 'unique'], errs: { atmosphere: 'athmosphere', concert: 'consert', unique: 'unieque' } },
+  ],
+  'experte': [
+    { words: ['The', 'lawyer', 'argued', 'for', 'a', 'compromise', 'between', 'the', 'parties'], errs: { lawyer: 'lawer', compromise: 'compromize', argued: 'arguied' } },
+    { words: ['The', 'Renaissance', 'permanently', 'influenced', 'art', 'and', 'science'], errs: { Renaissance: 'Renaissanse', permanently: 'permanentely', influenced: 'influensed' } },
+    { words: ['Her', 'dissertation', 'addressed', 'an', 'interdisciplinary', 'phenomenon'], errs: { dissertation: 'disertation', addressed: 'adressed', phenomenon: 'phenomenom' } },
+    { words: ['The', 'engineer', 'checked', 'the', 'statics', 'of', 'the', 'bridge', 'pillar'], errs: { engineer: 'engeneer', checked: 'cheked', pillar: 'piller' } },
+  ],
+};
+
 function generate(difficulty) {
+  const SENTENCES = getLang() === 'en' ? SENTENCES_EN : SENTENCES_DE;
   const s = pick(SENTENCES[difficulty] || SENTENCES['mittel']);
   // ein Fehlerwort wählen, dessen Fehlschreibung sich vom Original unterscheidet
   const candidates = Object.entries(s.errs).filter(([k, v]) => k !== v);
@@ -50,7 +85,7 @@ export function renderText(container, difficulty, api) {
   const t = generate(difficulty);
 
   container.innerHTML = `
-    <p class="task-question">In diesem Satz versteckt sich <strong>ein Rechtschreibfehler</strong>. Klicke auf das falsche Wort!</p>
+    <p class="task-question">${tr('text.instruction')}</p>
     <div class="text-passage" id="passage">
       ${t.shown.map((w, i) => `<span class="word-clickable" data-i="${i}">${escapeHtml(w)}</span>`).join(' ')}.
     </div>
@@ -64,13 +99,13 @@ export function renderText(container, difficulty, api) {
       const i = Number(el.dataset.i);
       if (i === t.errorIndex) {
         el.classList.add('correct');
-        feedback.innerHTML = `✅ Genau! Richtig heißt es: <strong>${escapeHtml(t.correctWord)}</strong>`;
+        feedback.innerHTML = tr('text.correctIs', { w: escapeHtml(t.correctWord) });
         feedback.className = 'feedback ok';
         api.finish(true);
       } else {
         el.classList.add('wrong');
         markCorrect();
-        feedback.innerHTML = `❌ Das Wort war richtig geschrieben. Der Fehler war: <strong>${escapeHtml(t.wrongWord)}</strong> → <strong>${escapeHtml(t.correctWord)}</strong>`;
+        feedback.innerHTML = tr('text.wasCorrect', { wrong: escapeHtml(t.wrongWord), right: escapeHtml(t.correctWord) });
         feedback.className = 'feedback bad';
         api.finish(false);
       }
@@ -86,7 +121,7 @@ export function renderText(container, difficulty, api) {
     showSolution() {
       markCorrect();
       container.querySelector('#solution-slot').innerHTML =
-        `<div class="solution-box"><h4>💡 Lösung</h4><p>Falsch geschrieben: <strong>${escapeHtml(t.wrongWord)}</strong> – richtig ist: <strong>${escapeHtml(t.correctWord)}</strong></p></div>`;
+        `<div class="solution-box"><h4>${tr('shell.solution')}</h4><p>${tr('text.solution', { wrong: escapeHtml(t.wrongWord), right: escapeHtml(t.correctWord) })}</p></div>`;
     },
   };
 }

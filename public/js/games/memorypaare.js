@@ -1,5 +1,6 @@
 // ===== Paare finden (Memory): Karten aufdecken, gleiche Paare merken =====
 import { shuffle } from '../core.js';
+import { t } from '../i18n.js';
 
 const EMOJIS = ['🐶','🐱','🦊','🐸','🐝','🦋','🌻','🍓','🍀','⚽','🎈','🚗','⭐','🌙','🍕','🎁','🐢','🦉','🍄','⛵','🎸','🧸','🔑','☂️'];
 
@@ -23,10 +24,10 @@ export function renderMemory(container, difficulty, api) {
   let locked = false;
 
   container.innerHTML = `
-    <p class="task-question">🃏 Finde alle ${cfg.pairs} Paare – du darfst höchstens ${cfg.maxMiss} Fehlversuche machen!</p>
-    <p class="sub" style="text-align:center;color:var(--muted)" id="miss-counter">Fehlversuche: 0 / ${cfg.maxMiss}</p>
+    <p class="task-question">${t('memory.instruction', { p: cfg.pairs, m: cfg.maxMiss })}</p>
+    <p class="sub" style="text-align:center;color:var(--muted)" id="miss-counter">${t('memory.misses', { n: 0, max: cfg.maxMiss })}</p>
     <div class="memo-grid" style="--cols:${cols}">
-      ${cards.map((_, i) => `<button class="memo-card" data-i="${i}" aria-label="Karte ${i + 1}">❓</button>`).join('')}
+      ${cards.map((_, i) => `<button class="memo-card" data-i="${i}" aria-label="${t('memory.card', { n: i + 1 })}">❓</button>`).join('')}
     </div>
     <div class="feedback" id="feedback"></div>
     <div id="solution-slot"></div>`;
@@ -54,16 +55,16 @@ export function renderMemory(container, difficulty, api) {
         els[b].classList.add('matched');
         open = [];
         if (matched.size === cards.length) {
-          feedback.textContent = `✅ Alle Paare gefunden – mit nur ${misses} Fehlversuchen!`;
+          feedback.textContent = t('memory.allFound', { n: misses });
           feedback.className = 'feedback ok';
           api.finish(true);
         }
       } else {
         misses++;
-        missEl.textContent = `Fehlversuche: ${misses} / ${cfg.maxMiss}`;
+        missEl.textContent = t('memory.misses', { n: misses, max: cfg.maxMiss });
         if (misses > cfg.maxMiss) {
           revealAll();
-          feedback.textContent = '❌ Zu viele Fehlversuche – hier lagen die Paare.';
+          feedback.textContent = t('memory.tooMany');
           feedback.className = 'feedback bad';
           api.finish(false);
           return;
@@ -83,9 +84,9 @@ export function renderMemory(container, difficulty, api) {
     showSolution() {
       revealAll();
       container.querySelector('#solution-slot').innerHTML = `
-        <div class="solution-box"><h4>💡 Lösung</h4>
-          <p>Alle Karten sind jetzt aufgedeckt.</p>
-          <p>Tipp: Merke dir Position <em>und</em> Bild zusammen – z. B. „Fuchs oben links". Orte lassen sich viel leichter merken als Reihenfolgen!</p>
+        <div class="solution-box"><h4>${t('shell.solution')}</h4>
+          <p>${t('memory.revealed')}</p>
+          <p>${t('memory.tip')}</p>
         </div>`;
     },
   };

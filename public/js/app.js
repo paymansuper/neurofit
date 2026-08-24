@@ -8,6 +8,7 @@ import { gameShell } from './gameshell.js';
 import { renderAdventureMap, playLevel } from './adventure.js';
 import { playDaily, isDailyDone, todaysGames } from './daily.js';
 import { RENDERERS } from './renderers.js';
+import { t, L, getLang, setLang } from './i18n.js';
 
 let profile = loadProfile();
 const app = document.getElementById('app');
@@ -17,13 +18,25 @@ function applyPrefs() {
   document.documentElement.dataset.textsize = profile.textSize;
 }
 
+// Statische Seitenelemente (Nav, Footer, Titel) übersetzen
+function applyLangToChrome() {
+  document.documentElement.lang = getLang();
+  document.title = t('app.title');
+  const navLabels = { home: 'nav.exercises', adventure: 'nav.adventure', stats: 'nav.stats', settings: 'nav.settings' };
+  document.querySelectorAll('.topnav button').forEach(b => { b.textContent = t(navLabels[b.dataset.nav]); });
+  const brand = document.querySelector('.brand');
+  if (brand) brand.setAttribute('aria-label', t('nav.home'));
+  const footer = document.querySelector('.footer p');
+  if (footer) footer.textContent = t('footer');
+}
+
 function refreshStreakPill() {
   const pill = document.getElementById('streak-pill');
   if (!pill) return;
   const streak = currentDailyStreak(profile);
   pill.hidden = streak === 0;
   pill.textContent = `🔥 ${streak}`;
-  pill.title = `${streak} Tage Tages-Challenge in Folge`;
+  pill.title = t('streak.title', { n: streak });
 }
 
 // ===== Navigation =====
@@ -49,26 +62,29 @@ function renderAdventure() {
   });
 }
 
-// ===== Onboarding: Altersgruppe wählen (keine exakten Daten!) =====
+// ===== Onboarding: Sprache & Altersgruppe wählen (keine exakten Daten!) =====
 function renderOnboarding() {
   app.innerHTML = `
     <div class="card onboard">
-      <h1>🧠 Willkommen bei NeuroFit!</h1>
-      <p style="color:var(--muted);margin-top:0.6rem">
-        Dein kostenloses Gehirnjogging – ohne Anmeldung und ohne Datensammlung.
-        Wähle deine Altersgruppe, damit wir passende Aufgaben empfehlen können.
-        Diese Angabe bleibt nur auf deinem Gerät.
-      </p>
+      <h1>${t('onboard.title')}</h1>
+      <div class="lang-switch" style="display:flex;gap:0.6rem;justify-content:center;margin-top:0.8rem">
+        <button class="btn ${getLang() === 'de' ? '' : 'secondary'}" data-lang="de">🇩🇪 Deutsch</button>
+        <button class="btn ${getLang() === 'en' ? '' : 'secondary'}" data-lang="en">🇬🇧 English</button>
+      </div>
+      <p style="color:var(--muted);margin-top:0.6rem">${t('onboard.text')}</p>
       <div class="age-options">
         ${AGE_GROUPS.map(a => `
           <button class="btn secondary" data-age="${a.id}" style="flex-direction:column;padding:1rem">
             <span style="font-size:2rem">${a.emoji}</span>
-            <span>${a.label}</span>
+            <span>${L(a.label)}</span>
           </button>`).join('')}
       </div>
-      <p style="font-size:0.8rem;color:var(--muted)">Du kannst die Altersgruppe jederzeit in den Einstellungen ändern.</p>
+      <p style="font-size:0.8rem;color:var(--muted)">${t('onboard.hint')}</p>
     </div>`;
 
+  app.querySelectorAll('[data-lang]').forEach(b => {
+    b.addEventListener('click', () => { if (b.dataset.lang !== getLang()) setLang(b.dataset.lang); });
+  });
   app.querySelectorAll('[data-age]').forEach(b => {
     b.addEventListener('click', () => {
       profile.ageGroup = b.dataset.age;
@@ -89,30 +105,30 @@ function renderHome() {
 
   app.innerHTML = `
     <div class="hero">
-      <h1>Was möchtest du heute trainieren?</h1>
-      <p>Altersgruppe: ${ag.emoji} ${ag.label} · ${profile.totalPlayed} Aufgaben trainiert · ${profile.playDays.length} Tage aktiv</p>
+      <h1>${t('home.title')}</h1>
+      <p>${t('home.meta', { ag: `${ag.emoji} ${L(ag.label)}`, n: profile.totalPlayed, d: profile.playDays.length })}</p>
     </div>
     <button class="daily-banner ${done ? 'done' : ''}" id="go-daily">
       <span class="adv-banner-emoji">${done ? '✅' : '📅'}</span>
       <span>
-        <strong>Tages-Challenge</strong> ${streak > 0 ? `<span class="streak-flame">🔥 ${streak}</span>` : ''}<br>
-        <small>${done ? 'Heute geschafft – komm morgen wieder für deinen Streak!' : `Heute: ${dailyIcons} · 3 Aufgaben, 2 richtig = Streak & Bonus-XP!`}</small>
+        <strong>${t('home.daily.title')}</strong> ${streak > 0 ? `<span class="streak-flame">🔥 ${streak}</span>` : ''}<br>
+        <small>${done ? t('home.daily.done') : t('home.daily.todo', { icons: dailyIcons })}</small>
       </span>
-      <span class="adv-banner-go">${done ? 'Erledigt ✓' : 'Los geht\'s →'}</span>
+      <span class="adv-banner-go">${done ? t('home.daily.goDone') : t('home.daily.go')}</span>
     </button>
     <button class="adv-banner" id="go-adventure">
       <span class="adv-banner-emoji">🗺️</span>
       <span>
-        <strong>Abenteuer-Modus</strong><br>
-        <small>Reise durch 5 Welten, besiege Boss-Level, sammle Sterne & steige im Rang auf!</small>
+        <strong>${t('home.adv.title')}</strong><br>
+        <small>${t('home.adv.sub')}</small>
       </span>
-      <span class="adv-banner-go">Spielen →</span>
+      <span class="adv-banner-go">${t('home.adv.go')}</span>
     </button>
     ${CATEGORIES.map(cat => {
       const games = GAMES.filter(g => g.cat === cat.id);
       if (!games.length) return '';
       return `
-      <h2 class="cat-heading">${cat.emoji} ${cat.name}</h2>
+      <h2 class="cat-heading">${cat.emoji} ${L(cat.name)}</h2>
       <div class="game-grid">
         ${games.map(g => {
           const r = profile.ratings[g.id];
@@ -121,10 +137,10 @@ function renderHome() {
           return `
           <button class="game-card" data-game="${g.id}">
             <span class="icon">${g.icon}</span>
-            <h3>${g.name}</h3>
-            <p>${g.desc}</p>
-            <span class="rating-badge">${lvl.emoji} ${lvl.name} · ${r.elo}</span>
-            <span class="sub" style="color:var(--muted);font-size:0.78rem">Empfohlen: ${rec.label}</span>
+            <h3>${L(g.name)}</h3>
+            <p>${L(g.desc)}</p>
+            <span class="rating-badge">${lvl.emoji} ${L(lvl.name)} · ${r.elo}</span>
+            <span class="sub" style="color:var(--muted);font-size:0.78rem">${t('home.recommended', { d: L(rec.label) })}</span>
           </button>`;
         }).join('')}
       </div>`;
@@ -154,9 +170,9 @@ function renderStats() {
 
   app.innerHTML = `
     <div class="hero">
-      <h1>📈 Meine Statistik</h1>
-      <p>Gesamt-Skill: <strong>${avgElo}</strong> ${overall.emoji} ${overall.name} · ${totalSolved} richtig gelöst · ${profile.playDays.length} Tage aktiv</p>
-      <p>Abenteuer: <strong>${rank.emoji} ${rank.name}</strong> · ${profile.adventure.xp} XP · ⭐ ${totalStars} Sterne</p>
+      <h1>${t('stats.title')}</h1>
+      <p>${t('stats.meta1', { elo: avgElo, lvl: `${overall.emoji} ${L(overall.name)}`, n: totalSolved, d: profile.playDays.length })}</p>
+      <p>${t('stats.meta2', { rank: `${rank.emoji} ${L(rank.name)}`, xp: profile.adventure.xp, stars: totalStars })}</p>
     </div>
     <div class="stat-grid">
       ${GAMES.map(g => {
@@ -166,31 +182,31 @@ function renderStats() {
         const pct = Math.min(100, Math.max(0, ((r.elo - 300) / 1700) * 100));
         return `
         <div class="card stat-card">
-          <h3>${g.icon} ${g.name}</h3>
+          <h3>${g.icon} ${L(g.name)}</h3>
           <div class="big">${r.elo}</div>
-          <div class="level-tag">${lvl.emoji} ${lvl.name}</div>
+          <div class="level-tag">${lvl.emoji} ${L(lvl.name)}</div>
           <div class="progress-bar"><div style="width:${pct}%"></div></div>
-          <p class="sub">${r.played} gespielt · ${quote} % Erfolgsquote · Beste Serie: ${r.bestStreak} 🔥</p>
+          <p class="sub">${t('stats.perGame', { n: r.played, q: quote, s: r.bestStreak })}</p>
         </div>`;
       }).join('')}
     </div>
     <div class="card" style="margin-top:1.2rem">
-      <h3>🎖️ Abzeichen (${Object.keys(profile.achievements).length}/${ACHIEVEMENTS.length})</h3>
+      <h3>${t('stats.badges')} (${Object.keys(profile.achievements).length}/${ACHIEVEMENTS.length})</h3>
       <div class="badge-grid">
         ${ACHIEVEMENTS.map(a => {
           const got = !!profile.achievements[a.id];
           return `
-          <div class="badge-card ${got ? 'unlocked' : ''}" title="${escapeHtml(a.desc)}">
+          <div class="badge-card ${got ? 'unlocked' : ''}" title="${escapeHtml(L(a.desc))}">
             <span class="badge-emoji">${got ? a.emoji : '🔒'}</span>
-            <strong>${a.name}</strong>
-            <small>${a.desc}</small>
-            ${got ? `<small class="badge-date">✓ ${new Date(profile.achievements[a.id]).toLocaleDateString('de-DE')}</small>` : ''}
+            <strong>${L(a.name)}</strong>
+            <small>${L(a.desc)}</small>
+            ${got ? `<small class="badge-date">✓ ${new Date(profile.achievements[a.id]).toLocaleDateString(getLang() === 'de' ? 'de-DE' : 'en-GB')}</small>` : ''}
           </div>`;
         }).join('')}
       </div>
     </div>
     <div class="card" style="margin-top:1.2rem">
-      <h3>💡 Trainings-Tipp</h3>
+      <h3>${t('stats.tip')}</h3>
       <p style="color:var(--muted)">${trainingTip()}</p>
     </div>`;
 }
@@ -201,51 +217,60 @@ function trainingTip() {
   const strongest = GAMES.reduce((max, g) =>
     profile.ratings[g.id].elo > profile.ratings[max.id].elo ? g : max, GAMES[0]);
   if (profile.totalPlayed < 5) {
-    return 'Probiere jede Übung mindestens einmal aus – so findet NeuroFit heraus, wo du stehst und was zu dir passt.';
+    return t('stats.tipNew');
   }
-  return `Dein stärkster Bereich ist ${strongest.icon} ${strongest.name} – stark! ` +
-    `Für ein ausgewogenes Training empfehlen wir dir gerade ${weakest.icon} ${weakest.name}. ` +
-    `Schon 10 Minuten tägliches Üben in wechselnden Kategorien hält das Gehirn nachweislich fit.`;
+  return t('stats.tipText', {
+    strong: `${strongest.icon} ${L(strongest.name)}`,
+    weak: `${weakest.icon} ${L(weakest.name)}`,
+  });
 }
 
 // ===== Einstellungen =====
 function renderSettings() {
   app.innerHTML = `
     <div class="card">
-      <h2 style="margin-bottom:0.8rem">⚙️ Einstellungen</h2>
+      <h2 style="margin-bottom:0.8rem">${t('settings.title')}</h2>
       <div class="settings-row">
-        <div><strong>Altersgruppe</strong><br><small style="color:var(--muted)">Für Aufgaben-Empfehlungen – bleibt auf deinem Gerät</small></div>
+        <div><strong>${t('settings.language')}</strong><br><small style="color:var(--muted)">${t('settings.languageSub')}</small></div>
+        <select id="set-lang">
+          <option value="de" ${getLang() === 'de' ? 'selected' : ''}>🇩🇪 Deutsch</option>
+          <option value="en" ${getLang() === 'en' ? 'selected' : ''}>🇬🇧 English</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <div><strong>${t('settings.age')}</strong><br><small style="color:var(--muted)">${t('settings.ageSub')}</small></div>
         <select id="set-age">
-          ${AGE_GROUPS.map(a => `<option value="${a.id}" ${profile.ageGroup === a.id ? 'selected' : ''}>${a.emoji} ${a.label}</option>`).join('')}
+          ${AGE_GROUPS.map(a => `<option value="${a.id}" ${profile.ageGroup === a.id ? 'selected' : ''}>${a.emoji} ${L(a.label)}</option>`).join('')}
         </select>
       </div>
       <div class="settings-row">
-        <div><strong>Darstellung</strong></div>
+        <div><strong>${t('settings.display')}</strong></div>
         <select id="set-theme">
-          <option value="light" ${profile.theme === 'light' ? 'selected' : ''}>☀️ Hell</option>
-          <option value="dark" ${profile.theme === 'dark' ? 'selected' : ''}>🌙 Dunkel</option>
+          <option value="light" ${profile.theme === 'light' ? 'selected' : ''}>${t('settings.light')}</option>
+          <option value="dark" ${profile.theme === 'dark' ? 'selected' : ''}>${t('settings.dark')}</option>
         </select>
       </div>
       <div class="settings-row">
-        <div><strong>Textgröße</strong><br><small style="color:var(--muted)">Größere Schrift für bessere Lesbarkeit</small></div>
+        <div><strong>${t('settings.textsize')}</strong><br><small style="color:var(--muted)">${t('settings.textsizeSub')}</small></div>
         <select id="set-textsize">
-          <option value="normal" ${profile.textSize === 'normal' ? 'selected' : ''}>Normal</option>
-          <option value="gross" ${profile.textSize === 'gross' ? 'selected' : ''}>Groß</option>
-          <option value="sehr-gross" ${profile.textSize === 'sehr-gross' ? 'selected' : ''}>Sehr groß</option>
+          <option value="normal" ${profile.textSize === 'normal' ? 'selected' : ''}>${t('settings.normal')}</option>
+          <option value="gross" ${profile.textSize === 'gross' ? 'selected' : ''}>${t('settings.large')}</option>
+          <option value="sehr-gross" ${profile.textSize === 'sehr-gross' ? 'selected' : ''}>${t('settings.xlarge')}</option>
         </select>
       </div>
       <div class="settings-row">
-        <div><strong>Fortschritt zurücksetzen</strong><br><small style="color:var(--muted)">Löscht alle Statistiken und Einstellungen unwiderruflich</small></div>
-        <button class="btn danger" id="btn-reset">Alles löschen</button>
+        <div><strong>${t('settings.reset')}</strong><br><small style="color:var(--muted)">${t('settings.resetSub')}</small></div>
+        <button class="btn danger" id="btn-reset">${t('settings.resetBtn')}</button>
       </div>
     </div>
     <div class="card" style="margin-top:1.2rem">
-      <h3>🔒 Datenschutz</h3>
-      <p style="color:var(--muted)">NeuroFit speichert keinerlei personenbezogene Daten. Deine Altersgruppe,
-      Einstellungen und Spielstatistiken liegen ausschließlich im lokalen Speicher deines Browsers
-      und verlassen dein Gerät niemals. Es gibt kein Tracking, keine Cookies von Drittanbietern und keine Server-Datenbank.</p>
+      <h3>${t('settings.privacy')}</h3>
+      <p style="color:var(--muted)">${t('settings.privacyText')}</p>
     </div>`;
 
+  app.querySelector('#set-lang').addEventListener('change', e => {
+    setLang(e.target.value);
+  });
   app.querySelector('#set-age').addEventListener('change', e => {
     profile.ageGroup = e.target.value; saveProfile(profile);
   });
@@ -256,7 +281,7 @@ function renderSettings() {
     profile.textSize = e.target.value; saveProfile(profile); applyPrefs();
   });
   app.querySelector('#btn-reset').addEventListener('click', () => {
-    if (confirm('Wirklich alle Daten löschen? Das kann nicht rückgängig gemacht werden.')) {
+    if (confirm(t('settings.resetConfirm'))) {
       resetProfile();
       profile = loadProfile();
       applyPrefs();
@@ -267,6 +292,7 @@ function renderSettings() {
 
 // ===== Start =====
 applyPrefs();
+applyLangToChrome();
 navigate('home');
 
 // PWA: Service Worker registrieren (offline-fähig & installierbar)

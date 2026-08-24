@@ -1,5 +1,5 @@
 // ===== NeuroFit Service Worker: Offline-Fähigkeit für die PWA =====
-const CACHE = 'neurofit-v2';
+const CACHE = 'neurofit-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   './css/style.css',
   './js/app.js',
   './js/core.js',
+  './js/i18n.js',
   './js/gameshell.js',
   './js/adventure.js',
   './js/daily.js',

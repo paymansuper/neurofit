@@ -6,6 +6,7 @@ wird ausschließlich im `localStorage` des Browsers gespeichert.
 
 ## ✨ Features
 
+- **🌐 Zweisprachig: Deutsch & Englisch** – Sprachwahl beim Start und jederzeit in den Einstellungen (inkl. englischer Wortlisten für alle Sprachspiele)
 - **📅 Tages-Challenge & Streak**
   - Jeden Tag 3 kurze Aufgaben (für alle Spieler dieselben Kategorien)
   - Tagesstreak 🔥 mit Bonus-XP – der stärkste Anreiz, täglich zu trainieren
@@ -65,6 +66,7 @@ public/
 ├── css/style.css       # Design-System mit Themes & Textgrößen
 └── js/
     ├── core.js         # Profil, localStorage, Elo-Rating, Zufalls-Helfer
+    ├── i18n.js         # Sprachsystem (DE/EN): Wörterbuch, t()/L(), Sprachwahl
     ├── gameshell.js    # Gemeinsamer Spielrahmen (Schwierigkeit, Auswertung, Lösung)
     ├── app.js          # Router, Startseite, Statistik, Einstellungen
     ├── renderers.js    # Zentrale Zuordnung Spiel-ID → Renderer

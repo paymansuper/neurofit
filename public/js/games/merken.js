@@ -1,5 +1,6 @@
 // ===== Merkspiel: Zahlen-/Symbolfolgen einprägen und wiedergeben =====
 import { randInt, pick, escapeHtml } from '../core.js';
+import { t } from '../i18n.js';
 
 const CONFIG = {
   'sehr-leicht': { len: 3, showMs: 5000, mode: 'digits' },
@@ -27,7 +28,7 @@ export function renderMerken(container, difficulty, api) {
   let timerId = null;
 
   container.innerHTML = `
-    <p class="task-question">Präge dir die Folge ein – sie verschwindet gleich!</p>
+    <p class="task-question">${t('merken.memorize')}</p>
     <div class="memory-display" id="display" aria-live="assertive"></div>
     <p class="memory-timer" id="timer"></p>
     <div id="input-area"></div>
@@ -39,7 +40,7 @@ export function renderMerken(container, difficulty, api) {
   display.textContent = seq.join(' ');
 
   let remaining = Math.round(showMs / 1000);
-  timerEl.textContent = `Noch ${remaining} Sekunden …`;
+  timerEl.textContent = t('merken.seconds', { n: remaining });
   timerId = setInterval(() => {
     remaining--;
     if (!container.isConnected) { clearInterval(timerId); return; }
@@ -47,7 +48,7 @@ export function renderMerken(container, difficulty, api) {
       clearInterval(timerId);
       hideAndAsk();
     } else {
-      timerEl.textContent = `Noch ${remaining} Sekunden …`;
+      timerEl.textContent = t('merken.seconds', { n: remaining });
     }
   }, 1000);
 
@@ -64,7 +65,7 @@ export function renderMerken(container, difficulty, api) {
         <div class="memory-display" id="entered" style="min-height:2.5rem;font-size:1.5rem"></div>
         <div class="numpad" id="pad"></div>
         <div class="answer-center" style="margin-top:0.8rem">
-          <button class="btn" id="check">Prüfen ✓</button>
+          <button class="btn" id="check">${t('shell.check')}</button>
         </div>`;
       const pad = area.querySelector('#pad');
       const enteredEl = area.querySelector('#entered');
@@ -84,8 +85,8 @@ export function renderMerken(container, difficulty, api) {
     } else {
       area.innerHTML = `
         <div class="answer-center">
-          <input class="answer-input" id="answer" inputmode="numeric" autocomplete="off" aria-label="Erinnerte Folge">
-          <button class="btn" id="check">Prüfen ✓</button>
+          <input class="answer-input" id="answer" inputmode="numeric" autocomplete="off" aria-label="${t('merken.inputAria')}">
+          <button class="btn" id="check">${t('shell.check')}</button>
         </div>`;
       const input = area.querySelector('#answer');
       input.focus();
@@ -100,11 +101,11 @@ export function renderMerken(container, difficulty, api) {
     if (!val) return; // leere Eingabe nicht als Fehler werten
     const feedback = container.querySelector('#feedback');
     if (val === answer) {
-      feedback.textContent = '✅ Perfekt gemerkt!';
+      feedback.textContent = t('merken.perfect');
       feedback.className = 'feedback ok';
       api.finish(true);
     } else {
-      feedback.innerHTML = `❌ Nicht ganz. Die Folge war: <strong>${escapeHtml(seq.join(' '))}</strong>`;
+      feedback.innerHTML = t('merken.notQuite', { seq: escapeHtml(seq.join(' ')) });
       feedback.className = 'feedback bad';
       api.finish(false);
     }
@@ -114,8 +115,8 @@ export function renderMerken(container, difficulty, api) {
     showSolution() {
       clearInterval(timerId);
       container.querySelector('#solution-slot').innerHTML =
-        `<div class="solution-box"><h4>💡 Lösung</h4><p>Die Folge war: <strong>${escapeHtml(seq.join(' '))}</strong></p>
-         <p>Tipp: Gruppiere die Zeichen in 2er- oder 3er-Blöcke ("Chunking") – so merkt sich unser Gehirn Folgen viel leichter.</p></div>`;
+        `<div class="solution-box"><h4>${t('shell.solution')}</h4><p>${t('merken.was', { seq: escapeHtml(seq.join(' ')) })}</p>
+         <p>${t('merken.tip')}</p></div>`;
     },
   };
 }

@@ -1,6 +1,7 @@
 // ===== Waage-Rätsel: Emoji-Gleichungen lösen =====
 import { randInt, shuffle } from '../core.js';
 import { simpleInputTask } from '../gameshell.js';
+import { t as tr } from '../i18n.js';
 
 const SYMBOLS = ['🍎', '🍐', '🍋', '🍇', '🍉', '🥝'];
 
@@ -13,7 +14,7 @@ function generate(difficulty) {
       eqs: [`${A} + ${A} = ${2 * a}`],
       question: `${A} = ?`,
       answer: a,
-      steps: [`${A} + ${A} = ${2 * a}, also ist ${A} = ${2 * a} : 2 = ${a}.`],
+      steps: [tr('waage.also', { eq: `${A} + ${A} = ${2 * a} → ${A} = ${2 * a} : 2 = ${a}` })],
     };
   }
   if (difficulty === 'leicht') {
@@ -22,7 +23,7 @@ function generate(difficulty) {
       eqs: [`${A} + ${A} = ${2 * a}`, `${A} + ${B} = ${a + b}`],
       question: `${B} = ?`,
       answer: b,
-      steps: [`Aus der 1. Zeile: ${A} = ${a}.`, `Dann: ${a} + ${B} = ${a + b}, also ${B} = ${b}.`],
+      steps: [tr('waage.row1', { eq: `${A} = ${a}` }), tr('waage.then', { eq: `${a} + ${B} = ${a + b} → ${B} = ${b}` })],
     };
   }
   if (difficulty === 'mittel') {
@@ -31,7 +32,7 @@ function generate(difficulty) {
       eqs: [`${A} + ${A} + ${A} = ${3 * a}`, `${A} + ${B} = ${a + b}`],
       question: `${B} + ${B} = ?`,
       answer: 2 * b,
-      steps: [`Aus der 1. Zeile: ${A} = ${3 * a} : 3 = ${a}.`, `Dann: ${B} = ${a + b} − ${a} = ${b}.`, `Also: ${B} + ${B} = ${2 * b}.`],
+      steps: [tr('waage.row1', { eq: `${A} = ${3 * a} : 3 = ${a}` }), tr('waage.then', { eq: `${B} = ${a + b} − ${a} = ${b}` }), tr('waage.also', { eq: `${B} + ${B} = ${2 * b}` })],
     };
   }
   if (difficulty === 'schwer') {
@@ -40,7 +41,7 @@ function generate(difficulty) {
       eqs: [`${A} + ${A} = ${2 * a}`, `${A} + ${B} = ${a + b}`, `${B} + ${C} = ${b + c}`],
       question: `${C} = ?`,
       answer: c,
-      steps: [`${A} = ${a} (1. Zeile).`, `${B} = ${a + b} − ${a} = ${b} (2. Zeile).`, `${C} = ${b + c} − ${b} = ${c} (3. Zeile).`],
+      steps: [tr('waage.row', { eq: `${A} = ${a}`, n: 1 }), tr('waage.row', { eq: `${B} = ${a + b} − ${a} = ${b}`, n: 2 }), tr('waage.row', { eq: `${C} = ${b + c} − ${b} = ${c}`, n: 3 })],
     };
   }
   // experte: Gleichungssystem ohne direkte Auflösung – Summe aller drei Zeilen halbieren!
@@ -50,9 +51,9 @@ function generate(difficulty) {
     question: `${A} + ${B} + ${C} = ?`,
     answer: a + b + c,
     steps: [
-      `Addiere alle drei Zeilen: 2·(${A} + ${B} + ${C}) = ${a + b} + ${b + c} + ${a + c} = ${2 * (a + b + c)}.`,
-      `Also: ${A} + ${B} + ${C} = ${2 * (a + b + c)} : 2 = ${a + b + c}.`,
-      `(Einzeln: ${A} = ${a}, ${B} = ${b}, ${C} = ${c})`,
+      tr('waage.addAll', { eq: `2·(${A} + ${B} + ${C}) = ${a + b} + ${b + c} + ${a + c} = ${2 * (a + b + c)}` }),
+      tr('waage.also', { eq: `${A} + ${B} + ${C} = ${2 * (a + b + c)} : 2 = ${a + b + c}` }),
+      tr('waage.single', { list: `${A} = ${a}, ${B} = ${b}, ${C} = ${c}` }),
     ],
   };
 }
@@ -66,9 +67,9 @@ export function renderWaage(container, difficulty, api) {
   const taskDiv = document.createElement('div');
   container.appendChild(taskDiv);
   return simpleInputTask(taskDiv, api, {
-    question: `Was ergibt: <strong>${t.question.replace('= ?', '')}</strong>?`,
+    question: tr('waage.question', { q: t.question.replace('= ?', '').trim() }),
     answer: String(t.answer),
     inputMode: 'numeric',
-    solutionHtml: `<p>Antwort: <strong>${t.answer}</strong></p><ol style="margin:0.4rem 0 0 1.2rem">${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>`,
+    solutionHtml: `<p>${tr('shell.answer')}: <strong>${t.answer}</strong></p><ol style="margin:0.4rem 0 0 1.2rem">${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>`,
   });
 }

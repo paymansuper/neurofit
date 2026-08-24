@@ -4,65 +4,76 @@
 const STORAGE_KEY = 'neurofit-profile-v1';
 
 export const DIFFICULTIES = [
-  { id: 'sehr-leicht', label: 'Sehr leicht', elo: 700 },
-  { id: 'leicht',      label: 'Leicht',      elo: 950 },
-  { id: 'mittel',      label: 'Mittel',      elo: 1200 },
-  { id: 'schwer',      label: 'Schwer',      elo: 1450 },
-  { id: 'experte',     label: 'Experte',     elo: 1700 },
+  { id: 'sehr-leicht', label: { de: 'Sehr leicht', en: 'Very easy' }, elo: 700 },
+  { id: 'leicht',      label: { de: 'Leicht',      en: 'Easy' },      elo: 950 },
+  { id: 'mittel',      label: { de: 'Mittel',      en: 'Medium' },    elo: 1200 },
+  { id: 'schwer',      label: { de: 'Schwer',      en: 'Hard' },      elo: 1450 },
+  { id: 'experte',     label: { de: 'Experte',     en: 'Expert' },    elo: 1700 },
 ];
 
 export const AGE_GROUPS = [
-  { id: 'kind',    label: '6–12 Jahre',  emoji: '🧒', defaultDiff: 'sehr-leicht' },
-  { id: 'jugend',  label: '13–17 Jahre', emoji: '🧑', defaultDiff: 'leicht' },
-  { id: 'erwachsen', label: '18–59 Jahre', emoji: '🧑‍💼', defaultDiff: 'mittel' },
-  { id: 'senior',  label: '60+ Jahre',   emoji: '🧓', defaultDiff: 'leicht' },
+  { id: 'kind',    label: { de: '6–12 Jahre',  en: '6–12 years' },  emoji: '🧒', defaultDiff: 'sehr-leicht' },
+  { id: 'jugend',  label: { de: '13–17 Jahre', en: '13–17 years' }, emoji: '🧑', defaultDiff: 'leicht' },
+  { id: 'erwachsen', label: { de: '18–59 Jahre', en: '18–59 years' }, emoji: '🧑‍💼', defaultDiff: 'mittel' },
+  { id: 'senior',  label: { de: '60+ Jahre',   en: '60+ years' },   emoji: '🧓', defaultDiff: 'leicht' },
 ];
 
 export const CATEGORIES = [
-  { id: 'gedaechtnis', name: 'Gedächtnis',        emoji: '🧠' },
-  { id: 'zahlen',      name: 'Zahlen & Logik',    emoji: '🔢' },
-  { id: 'sprache',     name: 'Sprache',           emoji: '🔤' },
-  { id: 'wahrnehmung', name: 'Wahrnehmung & Tempo', emoji: '👁️' },
-  { id: 'alltag',      name: 'Alltag & Daten',    emoji: '📊' },
+  { id: 'gedaechtnis', name: { de: 'Gedächtnis', en: 'Memory' },                    emoji: '🧠' },
+  { id: 'zahlen',      name: { de: 'Zahlen & Logik', en: 'Numbers & Logic' },       emoji: '🔢' },
+  { id: 'sprache',     name: { de: 'Sprache', en: 'Language' },                     emoji: '🔤' },
+  { id: 'wahrnehmung', name: { de: 'Wahrnehmung & Tempo', en: 'Perception & Speed' }, emoji: '👁️' },
+  { id: 'alltag',      name: { de: 'Alltag & Daten', en: 'Everyday & Data' },       emoji: '📊' },
 ];
 
 export const GAMES = [
-  { id: 'merken',   cat: 'gedaechtnis', name: 'Merkspiel',     icon: '🧠', desc: 'Präge dir Zahlen- und Symbolfolgen ein und gib sie aus dem Gedächtnis wieder.' },
-  { id: 'memory',   cat: 'gedaechtnis', name: 'Paare finden',  icon: '🃏', desc: 'Das klassische Memory: Decke Karten auf und finde alle Paare mit möglichst wenigen Fehlversuchen.' },
-  { id: 'sudoku',   cat: 'zahlen', name: 'Sudoku',        icon: '🔢', desc: 'Der Klassiker: Fülle das Raster so, dass jede Zahl nur einmal pro Zeile, Spalte und Block vorkommt.' },
-  { id: 'rechnen',  cat: 'zahlen', name: 'Kopfrechnen',   icon: '➗', desc: 'Trainiere dein Zahlenverständnis mit frisch generierten Rechenaufgaben.' },
-  { id: 'logik',    cat: 'zahlen', name: 'Logik-Reihen',  icon: '🧩', desc: 'Erkenne das Muster und finde die nächste Zahl in der Reihe.' },
-  { id: 'waage',    cat: 'zahlen', name: 'Waage-Rätsel',  icon: '⚖️', desc: 'Knacke Emoji-Gleichungen: Was wiegt der Apfel, wenn zwei Birnen sechs ergeben?' },
-  { id: 'worte',    cat: 'sprache', name: 'Wortspiele',    icon: '🔤', desc: 'Entwirre Buchstabensalate und finde das gesuchte Wort.' },
-  { id: 'wortgitter', cat: 'sprache', name: 'Wortgitter',  icon: '🔠', desc: 'Suchbild für Wörter: Finde das versteckte Wort im Buchstabenraster.' },
-  { id: 'text',     cat: 'sprache', name: 'Text-Training', icon: '📝', desc: 'Finde Rechtschreibfehler und trainiere dein Sprachgefühl – wie im Textverarbeitungs-Alltag.' },
-  { id: 'stroop',   cat: 'wahrnehmung', name: 'Farb-Wort-Test', icon: '🎨', desc: 'Das Wort sagt ROT, die Farbe ist blau – klicke richtig! Trainiert Konzentration und Impulskontrolle.' },
-  { id: 'tabellen', cat: 'alltag', name: 'Tabellen-Denken', icon: '📊', desc: 'Alltagsnahe Excel-Aufgaben: Summen, Mittelwerte und Auswertungen im Kopf.' },
+  { id: 'merken',   cat: 'gedaechtnis', icon: '🧠', name: { de: 'Merkspiel', en: 'Memory Sequence' },
+    desc: { de: 'Präge dir Zahlen- und Symbolfolgen ein und gib sie aus dem Gedächtnis wieder.', en: 'Memorize sequences of digits and symbols, then recall them from memory.' } },
+  { id: 'memory',   cat: 'gedaechtnis', icon: '🃏', name: { de: 'Paare finden', en: 'Matching Pairs' },
+    desc: { de: 'Das klassische Memory: Decke Karten auf und finde alle Paare mit möglichst wenigen Fehlversuchen.', en: 'The classic concentration game: flip cards and find all pairs with as few misses as possible.' } },
+  { id: 'sudoku',   cat: 'zahlen', icon: '🔢', name: { de: 'Sudoku', en: 'Sudoku' },
+    desc: { de: 'Der Klassiker: Fülle das Raster so, dass jede Zahl nur einmal pro Zeile, Spalte und Block vorkommt.', en: 'The classic: fill the grid so every number appears only once per row, column and block.' } },
+  { id: 'rechnen',  cat: 'zahlen', icon: '➗', name: { de: 'Kopfrechnen', en: 'Mental Math' },
+    desc: { de: 'Trainiere dein Zahlenverständnis mit frisch generierten Rechenaufgaben.', en: 'Train your number sense with freshly generated arithmetic tasks.' } },
+  { id: 'logik',    cat: 'zahlen', icon: '🧩', name: { de: 'Logik-Reihen', en: 'Logic Sequences' },
+    desc: { de: 'Erkenne das Muster und finde die nächste Zahl in der Reihe.', en: 'Spot the pattern and find the next number in the sequence.' } },
+  { id: 'waage',    cat: 'zahlen', icon: '⚖️', name: { de: 'Waage-Rätsel', en: 'Balance Puzzle' },
+    desc: { de: 'Knacke Emoji-Gleichungen: Was wiegt der Apfel, wenn zwei Birnen sechs ergeben?', en: 'Crack emoji equations: what does the apple weigh if two pears make six?' } },
+  { id: 'worte',    cat: 'sprache', icon: '🔤', name: { de: 'Wortspiele', en: 'Word Puzzles' },
+    desc: { de: 'Entwirre Buchstabensalate und finde das gesuchte Wort.', en: 'Unscramble jumbled letters and find the hidden word.' } },
+  { id: 'wortgitter', cat: 'sprache', icon: '🔠', name: { de: 'Wortgitter', en: 'Word Grid' },
+    desc: { de: 'Suchbild für Wörter: Finde das versteckte Wort im Buchstabenraster.', en: 'A word search: find the hidden word in the letter grid.' } },
+  { id: 'text',     cat: 'sprache', icon: '📝', name: { de: 'Text-Training', en: 'Text Training' },
+    desc: { de: 'Finde Rechtschreibfehler und trainiere dein Sprachgefühl – wie im Textverarbeitungs-Alltag.', en: 'Find spelling mistakes and train your feel for language – just like everyday word processing.' } },
+  { id: 'stroop',   cat: 'wahrnehmung', icon: '🎨', name: { de: 'Farb-Wort-Test', en: 'Color-Word Test' },
+    desc: { de: 'Das Wort sagt ROT, die Farbe ist blau – klicke richtig! Trainiert Konzentration und Impulskontrolle.', en: 'The word says RED, the color is blue – click correctly! Trains focus and impulse control.' } },
+  { id: 'tabellen', cat: 'alltag', icon: '📊', name: { de: 'Tabellen-Denken', en: 'Table Thinking' },
+    desc: { de: 'Alltagsnahe Excel-Aufgaben: Summen, Mittelwerte und Auswertungen im Kopf.', en: 'Everyday spreadsheet tasks: sums, averages and analyses in your head.' } },
 ];
 
 const START_ELO = 1000;
 
 // ===== Abenteuer-Modus: Ränge & Charaktere =====
 export const RANKS = [
-  { xp: 0,    name: 'Frischling',       emoji: '🌱' },
-  { xp: 100,  name: 'Denk-Azubi',       emoji: '📘' },
-  { xp: 250,  name: 'Rätselscout',      emoji: '🔍' },
-  { xp: 450,  name: 'Zahlenjäger',      emoji: '🏹' },
-  { xp: 700,  name: 'Logikritter',      emoji: '🛡️' },
-  { xp: 1000, name: 'Gedächtnisheld',   emoji: '🦸' },
-  { xp: 1400, name: 'Wortmagier',       emoji: '🪄' },
-  { xp: 1900, name: 'Denkmeister',      emoji: '🎓' },
-  { xp: 2500, name: 'Gehirn-Champion',  emoji: '🏆' },
-  { xp: 3200, name: 'NeuroLegende',     emoji: '👑' },
+  { xp: 0,    name: { de: 'Frischling', en: 'Rookie' },              emoji: '🌱' },
+  { xp: 100,  name: { de: 'Denk-Azubi', en: 'Think Trainee' },       emoji: '📘' },
+  { xp: 250,  name: { de: 'Rätselscout', en: 'Puzzle Scout' },       emoji: '🔍' },
+  { xp: 450,  name: { de: 'Zahlenjäger', en: 'Number Hunter' },      emoji: '🏹' },
+  { xp: 700,  name: { de: 'Logikritter', en: 'Logic Knight' },       emoji: '🛡️' },
+  { xp: 1000, name: { de: 'Gedächtnisheld', en: 'Memory Hero' },     emoji: '🦸' },
+  { xp: 1400, name: { de: 'Wortmagier', en: 'Word Wizard' },         emoji: '🪄' },
+  { xp: 1900, name: { de: 'Denkmeister', en: 'Master Mind' },        emoji: '🎓' },
+  { xp: 2500, name: { de: 'Gehirn-Champion', en: 'Brain Champion' }, emoji: '🏆' },
+  { xp: 3200, name: { de: 'NeuroLegende', en: 'Neuro Legend' },      emoji: '👑' },
 ];
 
 export const CHARACTERS = [
-  { id: 'neuro',  emoji: '🧠', name: 'Neuro',          unlockRank: 0 },
-  { id: 'fuchs',  emoji: '🦊', name: 'Fibo der Fuchs', unlockRank: 2 },
-  { id: 'eule',   emoji: '🦉', name: 'Professor Eule', unlockRank: 4 },
-  { id: 'delfin', emoji: '🐬', name: 'Delfina',        unlockRank: 6 },
-  { id: 'drache', emoji: '🐲', name: 'Drako',          unlockRank: 8 },
-  { id: 'krone',  emoji: '🤴', name: 'Der Denkkönig',  unlockRank: 9 },
+  { id: 'neuro',  emoji: '🧠', name: { de: 'Neuro', en: 'Neuro' },                   unlockRank: 0 },
+  { id: 'fuchs',  emoji: '🦊', name: { de: 'Fibo der Fuchs', en: 'Fibo the Fox' },   unlockRank: 2 },
+  { id: 'eule',   emoji: '🦉', name: { de: 'Professor Eule', en: 'Professor Owl' },  unlockRank: 4 },
+  { id: 'delfin', emoji: '🐬', name: { de: 'Delfina', en: 'Delfina' },               unlockRank: 6 },
+  { id: 'drache', emoji: '🐲', name: { de: 'Drako', en: 'Drako' },                   unlockRank: 8 },
+  { id: 'krone',  emoji: '🤴', name: { de: 'Der Denkkönig', en: 'The Think King' },  unlockRank: 9 },
 ];
 
 export function xpToRank(xp) {
@@ -94,22 +105,22 @@ function perfectWorlds(p) {
 }
 
 export const ACHIEVEMENTS = [
-  { id: 'erste-schritte', emoji: '👣', name: 'Erste Schritte',    desc: 'Löse deine erste Aufgabe richtig',            check: p => totalSolved(p) >= 1 },
-  { id: 'zehn',           emoji: '🔟', name: 'Warmgelaufen',      desc: 'Löse 10 Aufgaben richtig',                    check: p => totalSolved(p) >= 10 },
-  { id: 'hundert',        emoji: '💯', name: 'Hunderter-Club',    desc: 'Löse 100 Aufgaben richtig',                   check: p => totalSolved(p) >= 100 },
-  { id: 'fuenfhundert',   emoji: '🚀', name: 'Denk-Maschine',     desc: 'Löse 500 Aufgaben richtig',                   check: p => totalSolved(p) >= 500 },
-  { id: 'serie-5',        emoji: '🔥', name: 'Lauffeuer',         desc: '5 richtige Antworten in Folge (eine Übung)',  check: p => Object.values(p.ratings).some(r => r.bestStreak >= 5) },
-  { id: 'serie-15',       emoji: '☄️', name: 'Unaufhaltsam',      desc: '15 richtige Antworten in Folge',              check: p => Object.values(p.ratings).some(r => r.bestStreak >= 15) },
-  { id: 'allrounder',     emoji: '🎪', name: 'Allrounder',        desc: 'Spiele jede Übungskategorie mindestens einmal', check: p => Object.values(p.ratings).every(r => r.played >= 1) },
-  { id: 'profi',          emoji: '⭐', name: 'Profi-Denker',      desc: 'Erreiche 1350 Skillrating in einer Kategorie', check: p => Object.values(p.ratings).some(r => r.elo >= 1350) },
-  { id: 'meister',        emoji: '🏆', name: 'Kategorien-Meister', desc: 'Erreiche 1600 Skillrating in einer Kategorie', check: p => Object.values(p.ratings).some(r => r.elo >= 1600) },
-  { id: 'boss-1',         emoji: '🏰', name: 'Bossjäger',         desc: 'Besiege deinen ersten Boss im Abenteuer',     check: p => bossesBeaten(p) >= 1 },
-  { id: 'alle-bosse',     emoji: '🐲', name: 'Weltenbezwinger',   desc: 'Besiege die Bosse aller 5 Welten',            check: p => bossesBeaten(p) >= 5 },
-  { id: 'welt-perfekt',   emoji: '🌟', name: 'Perfektionist',     desc: 'Hole alle 18 Sterne in einer Welt',           check: p => perfectWorlds(p) >= 1 },
-  { id: 'sterne-45',      emoji: '✨', name: 'Sternensammler',    desc: 'Sammle 45 Sterne im Abenteuer',               check: p => totalAdvStars(p) >= 45 },
-  { id: 'streak-3',       emoji: '📅', name: 'Dranbleiber',       desc: '3 Tage in Folge die Tages-Challenge schaffen', check: p => p.dailyStreak.best >= 3 },
-  { id: 'streak-7',       emoji: '🗓️', name: 'Wochen-Held',       desc: '7 Tage in Folge die Tages-Challenge schaffen', check: p => p.dailyStreak.best >= 7 },
-  { id: 'streak-30',      emoji: '🏵️', name: 'Eiserne Routine',   desc: '30 Tage in Folge die Tages-Challenge schaffen', check: p => p.dailyStreak.best >= 30 },
+  { id: 'erste-schritte', emoji: '👣', name: { de: 'Erste Schritte', en: 'First Steps' },       desc: { de: 'Löse deine erste Aufgabe richtig', en: 'Solve your first task correctly' },                        check: p => totalSolved(p) >= 1 },
+  { id: 'zehn',           emoji: '🔟', name: { de: 'Warmgelaufen', en: 'Warmed Up' },           desc: { de: 'Löse 10 Aufgaben richtig', en: 'Solve 10 tasks correctly' },                                       check: p => totalSolved(p) >= 10 },
+  { id: 'hundert',        emoji: '💯', name: { de: 'Hunderter-Club', en: 'Century Club' },      desc: { de: 'Löse 100 Aufgaben richtig', en: 'Solve 100 tasks correctly' },                                     check: p => totalSolved(p) >= 100 },
+  { id: 'fuenfhundert',   emoji: '🚀', name: { de: 'Denk-Maschine', en: 'Thinking Machine' },   desc: { de: 'Löse 500 Aufgaben richtig', en: 'Solve 500 tasks correctly' },                                     check: p => totalSolved(p) >= 500 },
+  { id: 'serie-5',        emoji: '🔥', name: { de: 'Lauffeuer', en: 'Wildfire' },               desc: { de: '5 richtige Antworten in Folge (eine Übung)', en: '5 correct answers in a row (one exercise)' },     check: p => Object.values(p.ratings).some(r => r.bestStreak >= 5) },
+  { id: 'serie-15',       emoji: '☄️', name: { de: 'Unaufhaltsam', en: 'Unstoppable' },         desc: { de: '15 richtige Antworten in Folge', en: '15 correct answers in a row' },                              check: p => Object.values(p.ratings).some(r => r.bestStreak >= 15) },
+  { id: 'allrounder',     emoji: '🎪', name: { de: 'Allrounder', en: 'All-Rounder' },           desc: { de: 'Spiele jede Übungskategorie mindestens einmal', en: 'Play every exercise at least once' },          check: p => Object.values(p.ratings).every(r => r.played >= 1) },
+  { id: 'profi',          emoji: '⭐', name: { de: 'Profi-Denker', en: 'Pro Thinker' },         desc: { de: 'Erreiche 1350 Skillrating in einer Kategorie', en: 'Reach a skill rating of 1350 in one exercise' }, check: p => Object.values(p.ratings).some(r => r.elo >= 1350) },
+  { id: 'meister',        emoji: '🏆', name: { de: 'Kategorien-Meister', en: 'Category Master' }, desc: { de: 'Erreiche 1600 Skillrating in einer Kategorie', en: 'Reach a skill rating of 1600 in one exercise' }, check: p => Object.values(p.ratings).some(r => r.elo >= 1600) },
+  { id: 'boss-1',         emoji: '🏰', name: { de: 'Bossjäger', en: 'Boss Hunter' },            desc: { de: 'Besiege deinen ersten Boss im Abenteuer', en: 'Beat your first boss in the adventure' },            check: p => bossesBeaten(p) >= 1 },
+  { id: 'alle-bosse',     emoji: '🐲', name: { de: 'Weltenbezwinger', en: 'World Conqueror' },  desc: { de: 'Besiege die Bosse aller 5 Welten', en: 'Beat the bosses of all 5 worlds' },                        check: p => bossesBeaten(p) >= 5 },
+  { id: 'welt-perfekt',   emoji: '🌟', name: { de: 'Perfektionist', en: 'Perfectionist' },      desc: { de: 'Hole alle 18 Sterne in einer Welt', en: 'Earn all 18 stars in one world' },                        check: p => perfectWorlds(p) >= 1 },
+  { id: 'sterne-45',      emoji: '✨', name: { de: 'Sternensammler', en: 'Star Collector' },    desc: { de: 'Sammle 45 Sterne im Abenteuer', en: 'Collect 45 stars in the adventure' },                         check: p => totalAdvStars(p) >= 45 },
+  { id: 'streak-3',       emoji: '📅', name: { de: 'Dranbleiber', en: 'Committed' },            desc: { de: '3 Tage in Folge die Tages-Challenge schaffen', en: 'Complete the daily challenge 3 days in a row' }, check: p => p.dailyStreak.best >= 3 },
+  { id: 'streak-7',       emoji: '🗓️', name: { de: 'Wochen-Held', en: 'Week Hero' },            desc: { de: '7 Tage in Folge die Tages-Challenge schaffen', en: 'Complete the daily challenge 7 days in a row' }, check: p => p.dailyStreak.best >= 7 },
+  { id: 'streak-30',      emoji: '🏵️', name: { de: 'Eiserne Routine', en: 'Iron Routine' },     desc: { de: '30 Tage in Folge die Tages-Challenge schaffen', en: 'Complete the daily challenge 30 days in a row' }, check: p => p.dailyStreak.best >= 30 },
 ];
 
 /** Prüft alle Abzeichen und gibt neu freigeschaltete zurück. */
@@ -243,11 +254,11 @@ export function updateRating(profile, gameId, difficultyId, won, usedSolution = 
 }
 
 export function eloToLevel(elo) {
-  if (elo < 850) return { name: 'Einsteiger', emoji: '🌱' };
-  if (elo < 1100) return { name: 'Fortgeschritten', emoji: '🌿' };
-  if (elo < 1350) return { name: 'Geübt', emoji: '🌳' };
-  if (elo < 1600) return { name: 'Profi', emoji: '⭐' };
-  return { name: 'Meister', emoji: '🏆' };
+  if (elo < 850) return { name: { de: 'Einsteiger', en: 'Beginner' }, emoji: '🌱' };
+  if (elo < 1100) return { name: { de: 'Fortgeschritten', en: 'Improving' }, emoji: '🌿' };
+  if (elo < 1350) return { name: { de: 'Geübt', en: 'Skilled' }, emoji: '🌳' };
+  if (elo < 1600) return { name: { de: 'Profi', en: 'Pro' }, emoji: '⭐' };
+  return { name: { de: 'Meister', en: 'Master' }, emoji: '🏆' };
 }
 
 // Empfohlene Schwierigkeit anhand Elo & Altersgruppe
