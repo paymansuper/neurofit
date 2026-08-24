@@ -42,7 +42,7 @@ python3 -m http.server 8000 --directory public
 
 Dann `http://localhost:8000` öffnen.
 
-## ☁️ Deployment auf GitHub Pages (empfohlen)
+## ☁️ Deployment auf GitHub Pages
 
 Das Repo enthält einen fertigen Workflow ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)),
 der bei jedem Push auf `main` automatisch den `public/`-Ordner veröffentlicht.
@@ -56,15 +56,6 @@ Einmalig aktivieren:
 Von dort können Nutzer NeuroFit direkt als **App installieren** (PWA):
 Chrome/Edge zeigen ein Installieren-Symbol in der Adressleiste, auf dem iPhone
 geht es über Teilen → „Zum Home-Bildschirm". Danach läuft die App offline.
-
-## ☁️ Alternative: Firebase Hosting
-
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting   # bestehende firebase.json übernehmen, public-Ordner: "public"
-firebase deploy
-```
 
 ## 🏗️ Architektur
 
