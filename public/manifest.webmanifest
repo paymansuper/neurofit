@@ -1,0 +1,25 @@
+{
+  "name": "NeuroFit – Gehirnjogging für alle",
+  "short_name": "NeuroFit",
+  "description": "Kostenloses Gehirnjogging ohne Anmeldung: Sudoku, Kopfrechnen, Logik, Merkspiele und mehr – mit Abenteuer-Modus und Tages-Challenge.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#4f6df5",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
